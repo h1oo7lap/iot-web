@@ -1,0 +1,39 @@
+# ===== Dependencies =====
+node_modules/
+
+# ===== Arduino / MQTT (chứa password - KHÔNG commit) =====
+arduino-mqtt/password.txt
+arduino-mqtt/myconfig.conf
+arduino-mqtt/run.txt
+arduino-mqtt/sketch_mar21a/secret.h
+
+# ===== Environment variables (chứa password - KHÔNG commit) =====
+.env
+.env.local
+.env.production
+
+# ===== Build output =====
+dist/
+dist-ssr/
+build/
+
+# ===== Logs =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Editor =====
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.sw?
+
