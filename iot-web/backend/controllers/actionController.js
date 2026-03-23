@@ -12,6 +12,7 @@ const getActions = async (req, res) => {
             status:    req.query.status,
             date_from: req.query.date_from,
             date_to:   req.query.date_to,
+            search:    req.query.search,
             limit,
             offset,
         })

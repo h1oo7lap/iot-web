@@ -1,13 +1,26 @@
 import pool from '../config/db.js'
 
 // Lấy dữ liệu gộp từ sensor_data (1 row = 1 lần đo)
-const getSensorData = async ({ device_id, date_from, date_to, limit, offset }) => {
+const getSensorData = async ({ device_id, date_from, date_to, search, limit, offset }) => {
     const conditions = []
     const values = []
 
     if (device_id) { conditions.push('device_id = ?'); values.push(device_id) }
     if (date_from) { conditions.push('timestamp >= ?'); values.push(date_from) }
     if (date_to) { conditions.push('timestamp <= ?'); values.push(date_to) }
+
+    // Xử lý tìm kiếm toàn cục nhiều trường (ID, Time, Value)
+    if (search) {
+        conditions.push(`(
+            id LIKE ? OR
+            temperature LIKE ? OR
+            humidity LIKE ? OR
+            light LIKE ? OR
+            DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%s') LIKE ?
+        )`)
+        const pattern = `%${search}%`
+        values.push(pattern, pattern, pattern, pattern, pattern)
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 
@@ -23,25 +36,43 @@ const getSensorData = async ({ device_id, date_from, date_to, limit, offset }) =
 }
 
 // Lấy raw log từng giá trị sensor
-const getRawData = async ({ sensor_id, value_type, group_id, device_id, date_from, date_to, limit, offset }) => {
+const getRawData = async ({ sensor_id, value_type, group_id, device_id, date_from, date_to, search, limit, offset }) => {
     const conditions = []
     const values = []
 
-    if (sensor_id) { conditions.push('sensor_id = ?'); values.push(sensor_id) }
-    if (value_type) { conditions.push('value_type = ?'); values.push(value_type) }
-    if (group_id) { conditions.push('group_id = ?'); values.push(group_id) }
-    if (device_id) { conditions.push('device_id = ?'); values.push(device_id) }
-    if (date_from) { conditions.push('timestamp >= ?'); values.push(date_from) }
-    if (date_to) { conditions.push('timestamp <= ?'); values.push(date_to) }
+    if (sensor_id) { conditions.push('r.sensor_id = ?'); values.push(sensor_id) }
+    if (value_type) { conditions.push('r.value_type = ?'); values.push(value_type) }
+    if (group_id) { conditions.push('r.group_id = ?'); values.push(group_id) }
+    if (device_id) { conditions.push('r.device_id = ?'); values.push(device_id) }
+    if (date_from) { conditions.push('r.timestamp >= ?'); values.push(date_from) }
+    if (date_to) { conditions.push('r.timestamp <= ?'); values.push(date_to) }
+
+    // Tính năng tìm kiếm dùng LIKE trên Raw log, map ID tuần tự của bảng chung
+    if (search) {
+        conditions.push(`(
+            sd.id LIKE ? OR
+            r.sensor_id LIKE ? OR
+            r.value_type LIKE ? OR
+            r.value LIKE ? OR
+            DATE_FORMAT(r.timestamp, '%Y-%m-%d %H:%i:%s') LIKE ?
+        )`)
+        const pattern = `%${search}%`
+        values.push(pattern, pattern, pattern, pattern, pattern)
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 
     const [[{ total }]] = await pool.query(
-        `SELECT COUNT(*) AS total FROM sensor_data_raw ${where}`, values
+        `SELECT COUNT(*) AS total 
+         FROM sensor_data_raw r 
+         JOIN sensor_data sd ON r.group_id = sd.group_id 
+         ${where}`, values
     )
     const [rows] = await pool.query(
-        `SELECT id AS display_id, sensor_id, value_type, value, group_id, device_id, timestamp
-         FROM sensor_data_raw ${where} ORDER BY id DESC LIMIT ? OFFSET ?`,
+        `SELECT sd.id AS display_id, r.sensor_id, r.value_type, r.value, r.group_id, r.device_id, r.timestamp
+         FROM sensor_data_raw r
+         JOIN sensor_data sd ON r.group_id = sd.group_id
+         ${where} ORDER BY sd.id DESC LIMIT ? OFFSET ?`,
         [...values, limit, offset]
     )
     return { total, rows }

@@ -12,7 +12,7 @@ import sensorModel from '../../models/sensorModel.js'
  *   ]
  * }
  */
-const handleData = async (payload) => {
+const handleData = async (payload, io) => {
     let parsed
     try {
         parsed = JSON.parse(payload)
@@ -63,6 +63,11 @@ const handleData = async (payload) => {
     try {
         await sensorModel.insertSensorData({ group_id, device_id, temperature, humidity, light, rawRows })
         console.log(`[MQTT/data] group_id=${group_id} | ${rawRows.length} rows saved`)
+
+        // Emit realtime tới tất cả clients
+        if (io) {
+            io.emit('sensor:data', { group_id, device_id, temperature, humidity, light, timestamp: new Date().toISOString() })
+        }
     } catch (error) {
         console.log('[MQTT/data] DB error:', error.message)
     }

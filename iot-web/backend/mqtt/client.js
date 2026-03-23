@@ -14,7 +14,7 @@ export const TOPICS = {
 
 let mqttClient = null
 
-export const connectMQTT = () => {
+export const connectMQTT = (io) => {
     const brokerUrl = `mqtt://${process.env.MQTT_HOST || '192.168.0.100'}:${process.env.MQTT_PORT || 1007}`
 
     mqttClient = mqtt.connect(brokerUrl, {
@@ -39,9 +39,9 @@ export const connectMQTT = () => {
         const message = payload.toString()
         console.log(`[MQTT] [${topic}]`, message)
 
-        if (topic === TOPICS.DATA)   await handleData(message)
-        if (topic === TOPICS.ACTION) await handleAction(message)
-        if (topic === TOPICS.STATE)  await handleState(message)
+        if (topic === TOPICS.DATA)   await handleData(message, io)
+        if (topic === TOPICS.ACTION) await handleAction(message, io)
+        if (topic === TOPICS.STATE)  await handleState(message, io)
     })
 
     mqttClient.on('reconnect', () => console.log('MQTT Reconnecting...'))
@@ -57,3 +57,4 @@ export const publish = (topic, message) => {
 }
 
 export const getClient = () => mqttClient
+

@@ -1,0 +1,128 @@
+import { useState, useRef } from 'react'
+import { BsEmojiSmile, BsPersonBadge, BsTelephone, BsEnvelope, BsFileEarmarkText } from 'react-icons/bs'
+import { FiGithub, FiFigma } from 'react-icons/fi'
+import './Profile.css'
+
+export default function Profile() {
+    const [avatar, setAvatar] = useState('https://avatars.githubusercontent.com/u/121852467?v=4')
+    const fileInputRef = useRef(null)
+
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const url = URL.createObjectURL(file)
+            setAvatar(url)
+        }
+    }
+
+    return (
+        <div className="profile-page">
+            <div className="page-header">
+                <h1 className="page-title">Profile</h1>
+            </div>
+
+            <div className="profile-container">
+                {/* 1. Avatar Section */}
+                <div className="profile-left">
+                    <div className="avatar-wrapper">
+                        <img 
+                            src={avatar} 
+                            alt="Avatar" 
+                        />
+                    </div>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        ref={fileInputRef} 
+                        style={{ display: 'none' }} 
+                        onChange={handleFileChange}
+                    />
+                    <button 
+                        className="change-avatar-btn" 
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        Change avatar
+                    </button>
+                </div>
+
+                {/* 2. Information Card */}
+                <div className="profile-card">
+                    <div className="card-title-wrap">
+                        <span className="card-title">Information</span>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsEmojiSmile /> Name
+                        </div>
+                        <div className="info-value">Lê Hồng Phú Hưng</div>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsPersonBadge /> Student ID
+                        </div>
+                        <div className="info-value">B22DCPT116</div>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsTelephone /> Phone
+                        </div>
+                        <div className="info-value">0898737792</div>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsEnvelope /> Mail
+                        </div>
+                        <div className="info-value">h1oo7lap@gmail.com</div>
+                    </div>
+                </div>
+
+                {/* 3. Link Card */}
+                <div className="profile-card">
+                    <div className="card-title-wrap">
+                        <span className="card-title">Link</span>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <FiGithub /> Github
+                        </div>
+                        <a href="https://github.com/h1oo7lap/IoT.git" target="_blank" rel="noreferrer" className="info-link">
+                            github.com/h1oo7lap/IoT.git
+                        </a>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <FiFigma /> Figma
+                        </div>
+                        <a href="https://figma.com/design/IoT" target="_blank" rel="noreferrer" className="info-link">
+                            figma.com/design/IoT
+                        </a>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsFileEarmarkText /> API DOC
+                        </div>
+                        <a href="http://localhost:5000/doc" target="_blank" rel="noreferrer" className="info-link">
+                            localhost:5000/doc
+                        </a>
+                    </div>
+
+                    <div className="info-item">
+                        <div className="info-label">
+                            <BsFileEarmarkText /> Report
+                        </div>
+                        <a href="#" className="info-link">
+                            IoT Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}

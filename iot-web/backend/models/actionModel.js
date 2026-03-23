@@ -1,7 +1,7 @@
 import pool from '../config/db.js'
 
 // Lấy danh sách action history
-const getActions = async ({ device_id, action, status, date_from, date_to, limit, offset }) => {
+const getActions = async ({ device_id, action, status, date_from, date_to, search, limit, offset }) => {
     const conditions = []
     const values = []
 
@@ -10,6 +10,20 @@ const getActions = async ({ device_id, action, status, date_from, date_to, limit
     if (status)    { conditions.push('status = ?');    values.push(status) }
     if (date_from) { conditions.push('timestamp >= ?'); values.push(date_from) }
     if (date_to)   { conditions.push('timestamp <= ?'); values.push(date_to) }
+
+    // Xử lý tìm kiếm toàn cục nhiều trường (ID, Device, Action, Status, Time)
+    if (search) {
+        conditions.push(`(
+            id LIKE ? OR
+            device_id LIKE ? OR
+            action LIKE ? OR
+            status LIKE ? OR
+            state LIKE ? OR
+            DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%s') LIKE ?
+        )`)
+        const pattern = `%${search}%`
+        values.push(pattern, pattern, pattern, pattern, pattern, pattern)
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 

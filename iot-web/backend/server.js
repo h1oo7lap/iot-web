@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import { spawn } from 'child_process'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 
 import { connectDB }   from './config/db.js'
 import { connectMQTT } from './mqtt/client.js'
@@ -39,8 +41,21 @@ const startMosquitto = () => {
 }
 
 // app config
-const app  = express()
-const port = process.env.PORT || 3000
+const app    = express()
+const server = createServer(app)
+const port   = process.env.PORT || 3000
+
+// Socket.IO
+export const io = new Server(server, {
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+})
+
+io.on('connection', (socket) => {
+    console.log('[Socket.IO] Client connected:', socket.id)
+    socket.on('disconnect', () => {
+        console.log('[Socket.IO] Client disconnected:', socket.id)
+    })
+})
 
 // middleware
 app.use(express.json())
@@ -49,9 +64,9 @@ app.use(cors())
 // db connection
 connectDB()
 
-// start mosquitto → wait 1.5s → connect mqtt
+// start mosquitto → wait 1.5s → connect mqtt (pass io for realtime emit)
 startMosquitto()
-setTimeout(() => connectMQTT(), 1500)
+setTimeout(() => connectMQTT(io), 1500)
 
 // api endpoints
 app.use('/api/sensor-data', sensorRouter)
@@ -60,7 +75,8 @@ app.use('/api/devices',     deviceRouter)
 
 app.get('/', (req, res) => res.send('IoT Backend Working'))
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server starting on http://localhost:${port}`)
 })
+
 
