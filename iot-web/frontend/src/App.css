@@ -37,6 +37,16 @@
 .sidebar-icon:hover { background: rgba(255,255,255,0.4); }
 .sidebar-icon.active { background: #fff; color: #2196f3; }
 
+.page-sep {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    color: #666;
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
   flex: 1;
@@ -76,35 +86,26 @@
 /* ===== SENSOR BADGE ===== */
 .sensor-badge {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; 
   align-items: center;
-  justify-content: center;
-  border-radius: 18px;
-  padding: 18px 16px;
-  min-width: 120px;
-  min-height: 90px;
-  gap: 6px;
+  justify-content: center; /* Center to match reference closely */
+  border-radius: 60px;
+  padding: 10px 24px;
+  min-width: 170px;
+  min-height: 65px;
+  gap: 15px; /* Gap between icon and value */
   flex-shrink: 0;
 }
 
-.sensor-badge.temperature {
-  background: linear-gradient(135deg, #f87171, #fca5a5, #fecaca);
+.sensor-badge-icon { 
+  font-size: 32px; 
+  color: #fff; /* White icon as in image */
 }
-.sensor-badge.humidity {
-  background: linear-gradient(135deg, #22d3ee, #67e8f9, #a5f3fc);
-}
-.sensor-badge.light {
-  background: linear-gradient(135deg, #d4d02a, #e6e47a, #f0ee9a);
-}
-
-.sensor-badge-icon { font-size: 28px; }
 .sensor-badge-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
-.sensor-badge.light .sensor-badge-value { color: #5a5200; text-shadow: none; }
 
 /* ===== CHART ===== */
 .sensor-chart-wrap {
@@ -205,6 +206,28 @@
 
 .toggle input:checked + .toggle-slider { background: #22c55e; }
 .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+/* LOADING / WAITING STATE */
+.toggle.loading .toggle-slider {
+  background: #f59e0b !important; /* MÀU VÀNG CẢNH BÁO/ĐỢI */
+  animation: bg-pulse 1.2s infinite ease-in-out;
+  cursor: wait;
+}
+
+.toggle.loading input:checked + .toggle-slider {
+  background: #f59e0b !important;
+}
+
+@keyframes bg-pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.device-card.loading {
+  opacity: 0.8;
+  pointer-events: none; /* TRÁNH CLICK TRÙNG LẶP */
+}
 
 /* ===== ADD BUTTON ===== */
 .add-btn {

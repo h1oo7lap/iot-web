@@ -46,7 +46,7 @@ const controlDevice = async (req, res) => {
         // Sinh request_id duy nhất cho mỗi lệnh
         const request_id = randomUUID()
         const desired_state = action === 'turn_on' ? 'on' : 'off'
-        const TIMEOUT_MS = 10_000 // 10 giây: nếu ESP không phản hồi → fail
+        const TIMEOUT_MS = 5000 // 5 giây: nếu ESP không phản hồi → fail
 
         // Lưu action với status="waiting" trước khi gửi lệnh
         await actionModel.createAction({ request_id, device_id, action, desired_state })

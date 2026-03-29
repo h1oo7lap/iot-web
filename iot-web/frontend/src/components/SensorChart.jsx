@@ -5,14 +5,14 @@ import {
 
 const COLORS = {
     temperature: '#ef4444',
-    humidity:    '#3b82f6',
-    light:       '#a0a000',
+    humidity: '#3b82f6',
+    light: '#a0a000',
 }
 
 const LABELS = {
     temperature: 'Temperature °C',
-    humidity:    'Humidity %',
-    light:       'Light Level  lx',
+    humidity: 'Humidity %',
+    light: 'Light Level  lx',
 }
 
 // Format timestamp → "YYYY-MM-DD HH:mm:ss"
@@ -26,7 +26,7 @@ const formatTime = (ts) => {
 
 export default function SensorChart({ data = [], type = 'temperature' }) {
     const chartData = [...data].reverse().map(d => ({
-        time:  formatTime(d.timestamp),
+        time: formatTime(d.timestamp),
         value: d[type] ?? null,
     })).filter(d => d.value !== null)
 
@@ -42,11 +42,11 @@ export default function SensorChart({ data = [], type = 'temperature' }) {
                         interval="preserveStartEnd"
                         tickLine={false}
                     />
-                    <YAxis 
-                        domain={[0, 'auto']} 
-                        tick={{ fontSize: 9, fill: '#666' }} 
-                        tickLine={false} 
-                        axisLine={false} 
+                    <YAxis
+                        domain={[0, 'auto']}
+                        tick={{ fontSize: 9, fill: '#666' }}
+                        tickLine={false}
+                        axisLine={false}
                     />
                     <Tooltip
                         contentStyle={{ fontSize: 12, borderRadius: 8, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}

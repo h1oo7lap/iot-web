@@ -77,9 +77,25 @@ export default function DataSensor() {
 
     const pageNums = () => {
         const nums = []
-        const start = Math.max(1, page - 2)
-        const end = Math.min(totalPages, start + 4)
-        for (let i = start; i <= end; i++) nums.push(i)
+        const radius = 1 // Số trang hiển thị quanh trang hiện tại
+        
+        // Luôn có trang 1
+        nums.push(1)
+
+        if (page > radius + 2) nums.push('...')
+
+        // Các trang xung quanh trang hiện tại
+        const start = Math.max(2, page - radius)
+        const end = Math.min(totalPages - 1, page + radius)
+        for (let i = start; i <= end; i++) {
+            nums.push(i)
+        }
+
+        if (page < totalPages - radius - 1) nums.push('...')
+
+        // Luôn có trang cuối (nếu > 1)
+        if (totalPages > 1) nums.push(totalPages)
+
         return nums
     }
 
@@ -227,14 +243,18 @@ export default function DataSensor() {
                     Pre
                 </button>
 
-                {pageNums().map(n => (
-                    <button
-                        key={n}
-                        className={`page-btn ${n === page ? 'active' : ''}`}
-                        onClick={() => setPage(n)}
-                    >
-                        {n}
-                    </button>
+                {pageNums().map((n, i) => (
+                    n === '...' ? (
+                        <span key={`sep-${i}`} className="page-sep">...</span>
+                    ) : (
+                        <button
+                            key={`p-${n}`}
+                            className={`page-btn ${n === page ? 'active' : ''}`}
+                            onClick={() => setPage(n)}
+                        >
+                            {n}
+                        </button>
+                    )
                 ))}
 
                 <button

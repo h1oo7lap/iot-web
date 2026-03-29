@@ -15,29 +15,29 @@ const formatTime = (ts) => {
 }
 
 const DEVICE_LABELS = {
-    light_1: 'Light Bedroom',
-    fan_1:   'Fan',
-    ac_1:    'Air Condition',
+    light_1: 'Light',
+    fan_1: 'Fan',
+    ac_1: 'Air Condition',
 }
 
 const ACTION_LABELS = {
-    turn_on:  'On',
-    turn_off: 'Off',
+    turn_on: 'Turn on',
+    turn_off: 'Turn off',
 }
 
 const LIMITS = [7, 10, 20, 50]
 
 export default function ActionHistory() {
-    const [rows,       setRows]       = useState([])
-    const [total,      setTotal]      = useState(0)
-    const [page,       setPage]       = useState(1)
-    const [limit,      setLimit]      = useState(7)
+    const [rows, setRows] = useState([])
+    const [total, setTotal] = useState(0)
+    const [page, setPage] = useState(1)
+    const [limit, setLimit] = useState(7)
     const [searchInput, setSearchInput] = useState('')
-    const [search,     setSearch]     = useState('')
-    const [filter,     setFilter]     = useState('all') // filter theo thiết bị
-    const [sortKey,    setSortKey]    = useState('display_id')
-    const [sortDir,    setSortDir]    = useState('desc')
-    const [loading,    setLoading]    = useState(false)
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState('all') // filter theo thiết bị
+    const [sortKey, setSortKey] = useState('display_id')
+    const [sortDir, setSortDir] = useState('desc')
+    const [loading, setLoading] = useState(false)
 
     const totalPages = Math.max(1, Math.ceil(total / limit))
 
@@ -59,12 +59,12 @@ export default function ActionHistory() {
     // Socket.IO realtime refresh
     useEffect(() => {
         const onRefresh = () => fetchData()
-        
-        socket.on('device:state',    onRefresh)
-        socket.on('action:timeout',  onRefresh)
+
+        socket.on('device:state', onRefresh)
+        socket.on('action:timeout', onRefresh)
 
         return () => {
-            socket.off('device:state',   onRefresh)
+            socket.off('device:state', onRefresh)
             socket.off('action:timeout', onRefresh)
         }
     }, [fetchData])
@@ -104,9 +104,25 @@ export default function ActionHistory() {
     // Pagination numbers
     const pageNums = () => {
         const nums = []
-        const start = Math.max(1, page - 2)
-        const end   = Math.min(totalPages, start + 4)
-        for (let i = start; i <= end; i++) nums.push(i)
+        const radius = 1 // Số trang hiển thị quanh trang hiện tại
+        
+        // Luôn có trang 1
+        nums.push(1)
+
+        if (page > radius + 2) nums.push('...')
+
+        // Các trang xung quanh trang hiện tại
+        const start = Math.max(2, page - radius)
+        const end = Math.min(totalPages - 1, page + radius)
+        for (let i = start; i <= end; i++) {
+            nums.push(i)
+        }
+
+        if (page < totalPages - radius - 1) nums.push('...')
+
+        // Luôn có trang cuối (nếu > 1)
+        if (totalPages > 1) nums.push(totalPages)
+
         return nums
     }
 
@@ -135,7 +151,7 @@ export default function ActionHistory() {
                     onChange={e => { setFilter(e.target.value); setPage(1) }}
                 >
                     <option value="all">All Devices</option>
-                    <option value="light_1">Light Bedroom</option>
+                    <option value="light_1">Light</option>
                     <option value="fan_1">Fan</option>
                     <option value="ac_1">Air Condition</option>
                 </select>
@@ -201,14 +217,18 @@ export default function ActionHistory() {
                     Pre
                 </button>
 
-                {pageNums().map(n => (
-                    <button
-                        key={n}
-                        className={`page-btn ${n === page ? 'active' : ''}`}
-                        onClick={() => setPage(n)}
-                    >
-                        {n}
-                    </button>
+                {pageNums().map((n, i) => (
+                    n === '...' ? (
+                        <span key={`sep-${i}`} className="page-sep">...</span>
+                    ) : (
+                        <button
+                            key={`p-${n}`}
+                            className={`page-btn ${n === page ? 'active' : ''}`}
+                            onClick={() => setPage(n)}
+                        >
+                            {n}
+                        </button>
+                    )
                 ))}
 
                 <button

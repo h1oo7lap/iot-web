@@ -4,9 +4,9 @@ import 'dotenv/config'
 const DB_NAME = process.env.DB_NAME || 'iot_db'
 
 const pool = mysql.createPool({
-    host:     process.env.DB_HOST || 'localhost',
-    port:     process.env.DB_PORT || 3306,
-    user:     process.env.DB_USER || 'root',
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
     password: process.env.DB_PASS || '',
     database: DB_NAME,
     waitForConnections: true,
@@ -19,9 +19,9 @@ export const connectDB = async () => {
     try {
         // Bước 1: Kết nối không chọn database → tạo database nếu chưa có
         const tempConn = await mysql.createConnection({
-            host:     process.env.DB_HOST || 'localhost',
-            port:     process.env.DB_PORT || 3306,
-            user:     process.env.DB_USER || 'root',
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 3306,
+            user: process.env.DB_USER || 'root',
             password: process.env.DB_PASS || '',
         })
         await tempConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`)

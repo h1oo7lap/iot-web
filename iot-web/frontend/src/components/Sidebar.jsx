@@ -1,25 +1,24 @@
+import { NavLink } from 'react-router-dom'
 import { HiHome } from 'react-icons/hi'
 import { HiMiniChartBar } from 'react-icons/hi2'
 import { BiHistory } from 'react-icons/bi'
 import { BsEmojiSmile } from 'react-icons/bs'
 
-export default function Sidebar({ active = 'dashboard', onNavigate }) {
-    const nav = (page) => onNavigate && onNavigate(page)
-
+export default function Sidebar() {
     return (
         <div className="sidebar">
-            <div className={`sidebar-icon ${active === 'dashboard' ? 'active' : ''}`} onClick={() => nav('dashboard')}>
+            <NavLink to="/" className={({ isActive }) => `sidebar-icon ${isActive ? 'active' : ''}`}>
                 <HiHome />
-            </div>
-            <div className={`sidebar-icon ${active === 'data-sensor' ? 'active' : ''}`} onClick={() => nav('data-sensor')}>
+            </NavLink>
+            <NavLink to="/data-sensor" className={({ isActive }) => `sidebar-icon ${isActive ? 'active' : ''}`}>
                 <HiMiniChartBar />
-            </div>
-            <div className={`sidebar-icon ${active === 'history' ? 'active' : ''}`} onClick={() => nav('history')}>
+            </NavLink>
+            <NavLink to="/history" className={({ isActive }) => `sidebar-icon ${isActive ? 'active' : ''}`}>
                 <BiHistory />
-            </div>
-            <div className={`sidebar-icon ${active === 'profile' ? 'active' : ''}`} onClick={() => nav('profile')}>
+            </NavLink>
+            <NavLink to="/profile" className={({ isActive }) => `sidebar-icon ${isActive ? 'active' : ''}`}>
                 <BsEmojiSmile />
-            </div>
+            </NavLink>
         </div>
     )
 }
