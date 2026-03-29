@@ -1,6 +1,6 @@
 import tempGif from '../assets/temperature.gif'
-import humGif  from '../assets/humidity.gif'
-import sunGif  from '../assets/sun.gif'
+import humGif from '../assets/humidity.gif'
+import sunGif from '../assets/sun.gif'
 import './SensorBadge.css'
 
 const getBadgeStyle = (type, value) => {

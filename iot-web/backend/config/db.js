@@ -17,7 +17,6 @@ const pool = mysql.createPool({
 
 export const connectDB = async () => {
     try {
-        // Bước 1: Kết nối không chọn database → tạo database nếu chưa có
         const tempConn = await mysql.createConnection({
             host: process.env.DB_HOST || 'localhost',
             port: process.env.DB_PORT || 3306,
@@ -27,7 +26,6 @@ export const connectDB = async () => {
         await tempConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`)
         await tempConn.end()
 
-        // Bước 2: Tạo bảng nếu chưa có
         const conn = await pool.getConnection()
 
         await conn.query(`
@@ -98,13 +96,11 @@ export const connectDB = async () => {
             )
         `)
 
-        // Migration: thêm cột request_id nếu bảng action_history đã tồn tại từ trước
         try {
             await conn.query(`ALTER TABLE action_history ADD COLUMN request_id VARCHAR(36) UNIQUE FIRST`)
             await conn.query(`ALTER TABLE action_history ADD INDEX idx_ah_request (request_id)`)
             console.log('[DB] Migration: đã thêm cột request_id vào action_history')
         } catch {
-            // Bỏ qua nếu cột đã tồn tại (Duplicate column error)
         }
 
         await conn.query(`
@@ -116,7 +112,6 @@ export const connectDB = async () => {
             )
         `)
 
-        // Bước 3: Seed data mặc định (INSERT IGNORE = bỏ qua nếu đã có)
         await conn.query(`
             INSERT IGNORE INTO devices (device_id, name, type, pin) VALUES
                 ('light_1', 'Đèn phòng',  'light', 5),

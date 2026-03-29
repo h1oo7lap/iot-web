@@ -29,7 +29,6 @@ export default function Dashboard({ sensorData, loading: sensorLoading }) {
 
     useEffect(() => { fetchDevices() }, [fetchDevices])
 
-    // Device Socket Listeners
     useEffect(() => {
         const onDeviceState = ({ device_id, state }) => {
             setDevices(prev => prev.map(d =>
@@ -57,10 +56,9 @@ export default function Dashboard({ sensorData, loading: sensorLoading }) {
         setDevices(prev => prev.map(d =>
             d.device_id === device_id ? { ...d, loading: true } : d
         ))
-        
+
         console.log(`[Dashboard Control] Command ${action} sent for ${device_id}, waiting...`)
 
-        // Safety timeout in frontend (6s)
         setTimeout(() => {
             setDevices(prev => prev.map(d =>
                 (d.device_id === device_id && d.loading) ? { ...d, loading: false } : d

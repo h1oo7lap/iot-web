@@ -15,8 +15,8 @@ export default function DataSensor() {
     const [limit, setLimit] = useState(7)
     const [searchInput, setSearchInput] = useState('')
     const [search, setSearch] = useState('')
-    const [filter, setFilter] = useState('all') // value_type
-    const [sensorFilter, setSensorFilter] = useState('all') // sensor_id
+    const [filter, setFilter] = useState('all')
+    const [sensorFilter, setSensorFilter] = useState('all')
     const [sortKey, setSortKey] = useState('display_id')
     const [sortDir, setSortDir] = useState('desc')
     const [loading, setLoading] = useState(false)
@@ -75,7 +75,7 @@ export default function DataSensor() {
                 value: searchInput,
                 setValue: setSearchInput,
                 onSearch: () => { setSearch(searchInput); setPage(1) },
-                placeholder: "Search ID, Time, Value..."
+                placeholder: "Search ID, Time..."
             }}
             filters={[
                 {

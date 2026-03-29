@@ -1,7 +1,4 @@
-import {
-    LineChart, Line, XAxis, YAxis, Tooltip,
-    ResponsiveContainer, CartesianGrid
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import './SensorChart.css'
 
 const COLORS = {
@@ -16,7 +13,6 @@ const LABELS = {
     light: 'Light Level  lx',
 }
 
-// Format timestamp → "YYYY-MM-DD HH:mm:ss"
 const formatTime = (ts) => {
     if (!ts) return ''
     const d = new Date(ts)

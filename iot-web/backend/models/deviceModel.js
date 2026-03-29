@@ -1,6 +1,5 @@
 import pool from '../config/db.js'
 
-// Lấy danh sách thiết bị + trạng thái hiện tại
 const getAllDevices = async () => {
     const [rows] = await pool.query(
         `SELECT d.device_id, d.name, d.type, d.pin,
@@ -13,7 +12,6 @@ const getAllDevices = async () => {
     return rows
 }
 
-// Lấy 1 thiết bị + trạng thái
 const getDeviceById = async (device_id) => {
     const [[row]] = await pool.query(
         `SELECT d.device_id, d.name, d.type,
@@ -27,7 +25,6 @@ const getDeviceById = async (device_id) => {
     return row || null
 }
 
-// Kiểm tra device tồn tại
 const deviceExists = async (device_id) => {
     const [[row]] = await pool.query(
         `SELECT device_id FROM devices WHERE device_id = ?`, [device_id]
@@ -35,7 +32,6 @@ const deviceExists = async (device_id) => {
     return !!row
 }
 
-// Upsert trạng thái thiết bị (dùng trong MQTT handler)
 const upsertState = async (device_id, state) => {
     await pool.query(
         `INSERT INTO device_state (device_id, state) VALUES (?, ?)
@@ -44,7 +40,6 @@ const upsertState = async (device_id, state) => {
     )
 }
 
-// Lấy danh sách sensor
 const getAllSensors = async () => {
     const [rows] = await pool.query(
         `SELECT sensor_id, device_id, name, type FROM sensors ORDER BY sensor_id`

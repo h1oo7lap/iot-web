@@ -3,8 +3,8 @@ import { getSensorData, getRawData, getLatest } from '../controllers/sensorContr
 
 const sensorRouter = express.Router()
 
-sensorRouter.get('/',       getSensorData)
-sensorRouter.get('/raw',    getRawData)
+sensorRouter.get('/', getSensorData)
+sensorRouter.get('/raw', getRawData)
 sensorRouter.get('/latest', getLatest)
 
 export default sensorRouter

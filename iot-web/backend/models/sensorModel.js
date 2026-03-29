@@ -1,6 +1,5 @@
 import pool from '../config/db.js'
 
-// Lấy dữ liệu gộp từ sensor_data (1 row = 1 lần đo)
 const getSensorData = async ({ device_id, date_from, date_to, search, limit, offset }) => {
     const conditions = []
     const values = []
@@ -9,7 +8,6 @@ const getSensorData = async ({ device_id, date_from, date_to, search, limit, off
     if (date_from) { conditions.push('timestamp >= ?'); values.push(date_from) }
     if (date_to) { conditions.push('timestamp <= ?'); values.push(date_to) }
 
-    // Xử lý tìm kiếm toàn cục nhiều trường (ID, Time, Value)
     if (search) {
         conditions.push(`(
             id LIKE ? OR
@@ -35,7 +33,6 @@ const getSensorData = async ({ device_id, date_from, date_to, search, limit, off
     return { total, rows }
 }
 
-// Lấy raw log từng giá trị sensor
 const getRawData = async ({ sensor_id, value_type, group_id, device_id, date_from, date_to, search, limit, offset }) => {
     const conditions = []
     const values = []
@@ -47,7 +44,6 @@ const getRawData = async ({ sensor_id, value_type, group_id, device_id, date_fro
     if (date_from) { conditions.push('r.timestamp >= ?'); values.push(date_from) }
     if (date_to) { conditions.push('r.timestamp <= ?'); values.push(date_to) }
 
-    // Tính năng tìm kiếm dùng LIKE trên Raw log, map ID tuần tự của bảng chung
     if (search) {
         conditions.push(`(
             sd.id LIKE ? OR
@@ -78,9 +74,7 @@ const getRawData = async ({ sensor_id, value_type, group_id, device_id, date_fro
     return { total, rows }
 }
 
-// Lấy danh sách các bản ghi mới nhất (mặc định 20 dòng)
 const getLatestData = async ({ limit = 20 } = {}) => {
-    // Ép kiểu limit sang số (Number) để thư viện mysql/mysql2 không bị lỗi syntax
     const numericLimit = Number(limit);
 
     const [rows] = await pool.query(
@@ -89,11 +83,9 @@ const getLatestData = async ({ limit = 20 } = {}) => {
         [numericLimit]
     )
 
-    // Trả về toàn bộ mảng thay vì chỉ lấy rows[0]
     return rows;
 }
 
-// Bulk insert raw + upsert gộp (dùng trong MQTT handler)
 const insertSensorData = async ({ group_id, device_id, temperature, humidity, light, rawRows }) => {
     const conn = await pool.getConnection()
     try {

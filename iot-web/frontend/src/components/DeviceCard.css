@@ -1,4 +1,3 @@
-/* ===== DEVICE CARD ===== */
 .device-card {
   background: #DFF0F9;
   border-radius: 16px;
@@ -50,7 +49,6 @@
   margin-bottom: 4px;
 }
 
-/* ===== TOGGLE SWITCH ===== */
 .toggle {
   position: relative;
   width: 50px;
@@ -70,7 +68,6 @@
   cursor: pointer;
   inset: 0;
   background: #94a3b8;
-  /* Màu xám khi tắt (Sleek Slate) */
   border-radius: 34px;
   transition: background 0.3s ease;
 }
@@ -90,14 +87,12 @@
 
 .toggle input:checked+.toggle-slider {
   background: #4ade80;
-  /* Màu xanh khi bật (Vibrant Green) */
 }
 
 .toggle input:checked+.toggle-slider::before {
   transform: translateX(24px);
 }
 
-/* LOADING / WAITING STATE */
 .toggle.loading .toggle-slider {
   background: #f59e0b !important;
   animation: bg-pulse 1.2s infinite ease-in-out;

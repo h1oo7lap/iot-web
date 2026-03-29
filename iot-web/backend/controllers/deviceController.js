@@ -43,20 +43,15 @@ const controlDevice = async (req, res) => {
             return res.json({ success: false, message: 'MQTT broker is not connected' })
         }
 
-        // Sinh request_id duy nhất cho mỗi lệnh
         const request_id = randomUUID()
         const desired_state = action === 'turn_on' ? 'on' : 'off'
-        const TIMEOUT_MS = 5000 // 5 giây: nếu ESP không phản hồi → fail
-
-        // Lưu action với status="waiting" trước khi gửi lệnh
+        const TIMEOUT_MS = 5000
         await actionModel.createAction({ request_id, device_id, action, desired_state })
 
-        // Gửi lệnh MQTT kèm request_id để ESP phản hồi đúng bản ghi
         publish(TOPICS.CONTROL, { request_id, device_id, action })
 
         console.log(`[Control] request_id=${request_id} device=${device_id} action=${action}`)
 
-        // Timeout: nếu ESP không phản hồi trong TIMEOUT_MS → tự mark fail
         setTimeout(async () => {
             const timedOut = await actionModel.timeoutAction(request_id)
             if (timedOut) {

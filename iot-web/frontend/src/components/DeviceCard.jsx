@@ -1,9 +1,9 @@
 import { controlDevice } from '../services/api.js'
-import fanGif       from '../assets/fan.gif'
-import acGif        from '../assets/air-conditioning.gif'
+import fanGif from '../assets/fan.gif'
+import acGif from '../assets/air-conditioning.gif'
 import lightBulbGif from '../assets/light-bulb.gif'
-import fanPng       from '../assets/fan.png'
-import acPng        from '../assets/air-conditioning.png'
+import fanPng from '../assets/fan.png'
+import acPng from '../assets/air-conditioning.png'
 import lightBulbPng from '../assets/light-bulb.png'
 import { useState } from 'react'
 import './DeviceCard.css'
@@ -36,10 +36,8 @@ export default function DeviceCard({ device, onToggle }) {
 
         const action = isOn ? 'turn_off' : 'turn_on'
 
-        // 1. Enter "Waiting" state immediately (animation starts)
         setIsWaiting(true)
 
-        // 2. Wait 1 second before sending command
         setTimeout(async () => {
             try {
                 await controlDevice(device.device_id, action)

@@ -27,7 +27,7 @@ export default function ActionHistory() {
     const [limit, setLimit] = useState(7)
     const [searchInput, setSearchInput] = useState('')
     const [search, setSearch] = useState('')
-    const [filter, setFilter] = useState('all') // filter theo thiết bị
+    const [filter, setFilter] = useState('all')
     const [sortKey, setSortKey] = useState('display_id')
     const [sortDir, setSortDir] = useState('desc')
     const [loading, setLoading] = useState(false)
@@ -90,7 +90,7 @@ export default function ActionHistory() {
                 value: searchInput,
                 setValue: setSearchInput,
                 onSearch: () => { setSearch(searchInput); setPage(1) },
-                placeholder: "Search Any..."
+                placeholder: "Search ID, Time..."
             }}
             filters={[
                 {

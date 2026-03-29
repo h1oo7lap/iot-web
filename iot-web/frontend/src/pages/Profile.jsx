@@ -92,7 +92,7 @@ export default function Profile() {
                             <FiGithub /> Github
                         </div>
                         <a href="https://github.com/h1oo7lap/iot-web.git" target="_blank" rel="noreferrer" className="info-link">
-                            github.com/h1oo7lap/iot-web.git
+                            github.com/h1oo7lap/iot-web
                         </a>
                     </div>
 
@@ -109,8 +109,8 @@ export default function Profile() {
                         <div className="info-label">
                             <BsFileEarmarkText /> API DOC
                         </div>
-                        <a href="http://localhost:5000/doc" target="_blank" rel="noreferrer" className="info-link">
-                            localhost:5000/doc
+                        <a href="https://documenter.getpostman.com/view/49368644/2sBXinG9yX" target="_blank" rel="noreferrer" className="info-link">
+                            documenter.getpostman.com/view/iot-web
                         </a>
                     </div>
 
@@ -119,7 +119,7 @@ export default function Profile() {
                             <BsFileEarmarkText /> Report
                         </div>
                         <a href="https://docs.google.com/document/d/1SnBSJGZRO3fsu7yMnkbz-bXphpF0God6zkD3n8OLW7U/edit?usp=sharing" target="_blank" rel="noreferrer" className="info-link">
-                            IoT Report
+                            docs.google.com/document/iot-web
                         </a>
                     </div>
                 </div>

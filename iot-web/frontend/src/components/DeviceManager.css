@@ -1,4 +1,3 @@
-/* ===== DEVICE MANAGER ===== */
 .device-manager {
   display: flex;
   flex-direction: column;
@@ -17,7 +16,6 @@
   margin-bottom: 4px;
 }
 
-/* ===== ADD BUTTON ===== */
 .add-btn {
   margin-top: auto;
   background: #7bc8e2;

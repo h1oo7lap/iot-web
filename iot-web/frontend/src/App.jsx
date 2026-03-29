@@ -30,7 +30,6 @@ export default function App() {
 
     useEffect(() => { fetchData() }, [fetchData])
 
-    // Sensor Socket Only
     useEffect(() => {
         const onSensorData = (data) => setSensorData(prev => [data, ...prev].slice(0, 20))
         socket.on('sensor:data', onSensorData)

@@ -1,15 +1,14 @@
 import mqtt from 'mqtt'
 import 'dotenv/config'
 
-import { handleData }   from './handlers/dataHandler.js'
+import { handleData } from './handlers/dataHandler.js'
 import { handleAction } from './handlers/actionHandler.js'
-import { handleState }  from './handlers/stateHandler.js'
+import { handleState } from './handlers/stateHandler.js'
 
 export const TOPICS = {
-    DATA:    'esp/data',
+    DATA: 'esp/data',
     CONTROL: 'esp/control',
-    STATE:   'esp/state',
-    // ACTION: 'esp/action' — đã bỏ, ESP không còn publish topic này
+    STATE: 'esp/state',
 }
 
 let mqttClient = null
@@ -18,13 +17,13 @@ export const connectMQTT = (io) => {
     const brokerUrl = `mqtt://${process.env.MQTT_HOST || '192.168.0.100'}:${process.env.MQTT_PORT || 1007}`
 
     mqttClient = mqtt.connect(brokerUrl, {
-        username:        process.env.MQTT_USER || 'h1oo7',
-        password:        process.env.MQTT_PASS || '1007',
-        clientId:        `backend_${Date.now()}`,
+        username: process.env.MQTT_USER || 'h1oo7',
+        password: process.env.MQTT_PASS || '1007',
+        clientId: `backend_${Date.now()}`,
         reconnectPeriod: 5000,
-        connectTimeout:  10000,
-        clean:           true,
-        keepalive:       60,
+        connectTimeout: 10000,
+        clean: true,
+        keepalive: 60,
     })
 
     mqttClient.on('connect', () => {
@@ -39,13 +38,13 @@ export const connectMQTT = (io) => {
         const message = payload.toString()
         console.log(`[MQTT] [${topic}]`, message)
 
-        if (topic === TOPICS.DATA)  await handleData(message, io)
+        if (topic === TOPICS.DATA) await handleData(message, io)
         if (topic === TOPICS.STATE) await handleState(message, io)
     })
 
     mqttClient.on('reconnect', () => console.log('MQTT Reconnecting...'))
-    mqttClient.on('offline',   () => console.log('MQTT Offline'))
-    mqttClient.on('error',     (err) => console.log('MQTT Error:', err.message))
+    mqttClient.on('offline', () => console.log('MQTT Offline'))
+    mqttClient.on('error', (err) => console.log('MQTT Error:', err.message))
 }
 
 export const publish = (topic, message) => {
