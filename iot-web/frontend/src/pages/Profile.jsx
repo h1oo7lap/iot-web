@@ -25,20 +25,20 @@ export default function Profile() {
                 {/* 1. Avatar Section */}
                 <div className="profile-left">
                     <div className="avatar-wrapper">
-                        <img 
-                            src={avatar} 
-                            alt="Avatar" 
+                        <img
+                            src={avatar}
+                            alt="Avatar"
                         />
                     </div>
-                    <input 
-                        type="file" 
-                        accept="image/*" 
-                        ref={fileInputRef} 
-                        style={{ display: 'none' }} 
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
                         onChange={handleFileChange}
                     />
-                    <button 
-                        className="change-avatar-btn" 
+                    <button
+                        className="change-avatar-btn"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         Change avatar
@@ -90,8 +90,8 @@ export default function Profile() {
                         <div className="info-label">
                             <FiGithub /> Github
                         </div>
-                        <a href="https://github.com/h1oo7lap/IoT.git" target="_blank" rel="noreferrer" className="info-link">
-                            github.com/h1oo7lap/IoT.git
+                        <a href="https://github.com/h1oo7lap/iot-web.git" target="_blank" rel="noreferrer" className="info-link">
+                            github.com/h1oo7lap/iot-web.git
                         </a>
                     </div>
 
@@ -99,8 +99,8 @@ export default function Profile() {
                         <div className="info-label">
                             <FiFigma /> Figma
                         </div>
-                        <a href="https://figma.com/design/IoT" target="_blank" rel="noreferrer" className="info-link">
-                            figma.com/design/IoT
+                        <a href="https://www.figma.com/design/2N24RDYFnImFgOuItaNKZ4/IoT?node-id=34-327&t=YgI9L2gUc2z6Jy6q-1" target="_blank" rel="noreferrer" className="info-link">
+                            figma.com/design/iot-web
                         </a>
                     </div>
 
@@ -117,7 +117,7 @@ export default function Profile() {
                         <div className="info-label">
                             <BsFileEarmarkText /> Report
                         </div>
-                        <a href="#" className="info-link">
+                        <a href="https://docs.google.com/document/d/1SnBSJGZRO3fsu7yMnkbz-bXphpF0God6zkD3n8OLW7U/edit?usp=sharing" target="_blank" rel="noreferrer" className="info-link">
                             IoT Report
                         </a>
                     </div>
