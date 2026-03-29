@@ -98,8 +98,11 @@
 }
 
 .sensor-badge-icon { 
-  font-size: 32px; 
-  color: #fff; /* White icon as in image */
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  mix-blend-mode: multiply; /* Giúp lọc nền trắng nếu có */
+  filter: brightness(1.1) contrast(1.1); /* Làm icon nổi bật hơn */
 }
 .sensor-badge-value {
   font-size: 19px;
@@ -156,9 +159,12 @@
 }
 
 .device-icon {
-  font-size: 26px;
-  color: #1a2e3b;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
   flex-shrink: 0;
+  mix-blend-mode: multiply;
+  filter: brightness(1.1) contrast(1.1);
 }
 
 .device-info {

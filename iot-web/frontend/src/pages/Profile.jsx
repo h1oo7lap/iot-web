@@ -2,9 +2,10 @@ import { useState, useRef } from 'react'
 import { BsEmojiSmile, BsPersonBadge, BsTelephone, BsEnvelope, BsFileEarmarkText } from 'react-icons/bs'
 import { FiGithub, FiFigma } from 'react-icons/fi'
 import './Profile.css'
+import avatarJpg from '../assets/avatar.jpg'
 
 export default function Profile() {
-    const [avatar, setAvatar] = useState('https://avatars.githubusercontent.com/u/121852467?v=4')
+    const [avatar, setAvatar] = useState(avatarJpg)
     const fileInputRef = useRef(null)
 
     const handleFileChange = (e) => {

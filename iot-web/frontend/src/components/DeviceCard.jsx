@@ -1,9 +1,12 @@
 import { controlDevice } from '../services/api.js'
+import fanGif       from '../assets/fan.gif'
+import acGif        from '../assets/air-conditioning.gif'
+import lightBulbGif from '../assets/light-bulb.gif'
 
 const DEVICE_ICONS = {
-    fan: '🌀',
-    ac: '💨',
-    light: '💡',
+    fan: fanGif,
+    ac: acGif,
+    light: lightBulbGif,
 }
 
 const DEVICE_LABELS = {
@@ -29,7 +32,7 @@ export default function DeviceCard({ device, onToggle }) {
 
     return (
         <div className={`device-card ${device.loading ? 'loading' : ''}`}>
-            <span className="device-icon">{icon}</span>
+            <img src={icon} alt={device.type} className="device-icon" />
             <div className="device-info">
                 <div className="device-name">{label}</div>
                 <label className={`toggle ${device.loading ? 'loading' : ''}`}>

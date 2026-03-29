@@ -12,6 +12,14 @@ import Profile from './pages/Profile.jsx'
 import { getSensorLatest, getDevices } from './services/api.js'
 import socket from './services/socket.js'
 
+// Import GIFs
+import tempGif from './assets/temperature.gif'
+import humGif  from './assets/humidity.gif'
+import sunGif  from './assets/sun.gif'
+import lightBulbGif from './assets/light-bulb.gif'
+import fanGif       from './assets/fan.gif'
+import acGif        from './assets/air-conditioning.gif'
+
 const getLatest = (data, key) => {
     if (!data || data.length === 0) return '--'
     const val = data[0]?.[key]
@@ -163,21 +171,21 @@ export default function App() {
                                     <>
                                         <div className="sensor-row">
                                             <div className="sensor-badge temperature" style={getBadgeStyle('temperature', temp)}>
-                                                <span className="sensor-badge-icon">🌡️</span>
+                                                <img src={tempGif} alt="temp" className="sensor-badge-icon" />
                                                 <span className="sensor-badge-value">{temp !== '--' ? `${temp}°C` : '--'}</span>
                                             </div>
                                             <SensorChart data={sensorData} type="temperature" />
                                         </div>
                                         <div className="sensor-row">
                                             <div className="sensor-badge humidity" style={getBadgeStyle('humidity', hum)}>
-                                                <span className="sensor-badge-icon">💧</span>
+                                                <img src={humGif} alt="hum" className="sensor-badge-icon" />
                                                 <span className="sensor-badge-value">{hum !== '--' ? `${hum}%` : '--'}</span>
                                             </div>
                                             <SensorChart data={sensorData} type="humidity" />
                                         </div>
                                         <div className="sensor-row">
                                             <div className="sensor-badge light" style={getBadgeStyle('light', light)}>
-                                                <span className="sensor-badge-icon">☀️</span>
+                                                <img src={sunGif} alt="sun" className="sensor-badge-icon" />
                                                 <span className="sensor-badge-value">{light !== '--' ? `${light} lx` : '--'}</span>
                                             </div>
                                             <SensorChart data={sensorData} type="light" />
