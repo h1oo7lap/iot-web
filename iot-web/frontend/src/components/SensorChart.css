@@ -1,0 +1,27 @@
+/* ===== CHART ===== */
+.sensor-chart-wrap {
+  flex: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 120px;
+  padding: 10px 14px 8px;
+}
+
+.sensor-chart-wrap.temperature {
+  background: #fde8e8;
+}
+
+.sensor-chart-wrap.humidity {
+  background: #e0eaff;
+}
+
+.sensor-chart-wrap.light {
+  background: #f5f5cc;
+}
+
+.chart-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}

@@ -2,6 +2,7 @@ import {
     LineChart, Line, XAxis, YAxis, Tooltip,
     ResponsiveContainer, CartesianGrid
 } from 'recharts'
+import './SensorChart.css'
 
 const COLORS = {
     temperature: '#ef4444',
