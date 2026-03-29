@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BsSearch } from 'react-icons/bs'
-import './DataSensor.css' // Tái sử dụng CSS layout, toolbar, table, pagination từ DataSensor
+import './ActionHistory.css'
 import { getActionHistoryPaged } from '../services/api.js'
 import socket from '../services/socket.js'
 

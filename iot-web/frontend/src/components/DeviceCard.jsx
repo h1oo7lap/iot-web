@@ -6,6 +6,7 @@ import fanPng       from '../assets/fan.png'
 import acPng        from '../assets/air-conditioning.png'
 import lightBulbPng from '../assets/light-bulb.png'
 import { useState } from 'react'
+import './DeviceCard.css'
 
 const DEVICE_ICONS_GIF = {
     fan: fanGif,

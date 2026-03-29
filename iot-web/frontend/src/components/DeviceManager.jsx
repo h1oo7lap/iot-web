@@ -1,4 +1,5 @@
 import DeviceCard from './DeviceCard.jsx'
+import './DeviceManager.css'
 
 export default function DeviceManager({ devices, onToggle }) {
     return (

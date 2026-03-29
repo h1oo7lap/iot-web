@@ -3,6 +3,7 @@ import { HiHome } from 'react-icons/hi'
 import { HiMiniChartBar } from 'react-icons/hi2'
 import { BiHistory } from 'react-icons/bi'
 import { BsEmojiSmile } from 'react-icons/bs'
+import './Sidebar.css'
 
 export default function Sidebar() {
     return (

@@ -1,0 +1,40 @@
+/* ===== DEVICE MANAGER ===== */
+.device-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #a8d8ed;
+  border-radius: 20px;
+  padding: 22px 18px;
+  width: 220px;
+  min-height: calc(100vh - 32px);
+}
+
+.device-manager-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a2e3b;
+  margin-bottom: 4px;
+}
+
+/* ===== ADD BUTTON ===== */
+.add-btn {
+  margin-top: auto;
+  background: #7bc8e2;
+  border: none;
+  border-radius: 16px;
+  width: 56px;
+  height: 56px;
+  font-size: 28px;
+  color: #1a2e3b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  transition: background 0.2s;
+}
+
+.add-btn:hover {
+  background: #5db5d5;
+}
