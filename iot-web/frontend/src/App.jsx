@@ -144,7 +144,15 @@ export default function App() {
         setDevices(prev => prev.map(d =>
             d.device_id === device_id ? { ...d, loading: true } : d
         ))
-        console.log(`[Control] Command ${action} sent for ${device_id}, waiting for hardware confirm...`)
+        
+        console.log(`[Control] Command ${action} sent for ${device_id}, waiting...`)
+
+        // Safety timeout in frontend (6s) - slightly longer than backend 5s
+        setTimeout(() => {
+            setDevices(prev => prev.map(d =>
+                (d.device_id === device_id && d.loading) ? { ...d, loading: false } : d
+            ))
+        }, 6000)
     }
 
     const temp = getLatest(sensorData, 'temperature')

@@ -34,17 +34,23 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.sidebar-icon:hover { background: rgba(255,255,255,0.4); }
-.sidebar-icon.active { background: #fff; color: #2196f3; }
+.sidebar-icon:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-icon.active {
+  background: #fff;
+  color: #2196f3;
+}
 
 .page-sep {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-    color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  color: #666;
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -86,24 +92,29 @@
 /* ===== SENSOR BADGE ===== */
 .sensor-badge {
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
   align-items: center;
-  justify-content: center; /* Center to match reference closely */
+  justify-content: center;
+  /* Center to match reference closely */
   border-radius: 60px;
   padding: 10px 24px;
   min-width: 170px;
   min-height: 65px;
-  gap: 15px; /* Gap between icon and value */
+  gap: 15px;
+  /* Gap between icon and value */
   flex-shrink: 0;
 }
 
-.sensor-badge-icon { 
+.sensor-badge-icon {
   width: 45px;
   height: 45px;
   object-fit: contain;
-  mix-blend-mode: multiply; /* Giúp lọc nền trắng nếu có */
-  filter: brightness(1.1) contrast(1.1); /* Làm icon nổi bật hơn */
+  mix-blend-mode: multiply;
+  /* Giúp lọc nền trắng nếu có */
+  filter: brightness(1.1) contrast(1.1);
+  /* Làm icon nổi bật hơn */
 }
+
 .sensor-badge-value {
   font-size: 19px;
   font-weight: 800;
@@ -118,9 +129,18 @@
   min-height: 120px;
   padding: 10px 14px 8px;
 }
-.sensor-chart-wrap.temperature { background: #fde8e8; }
-.sensor-chart-wrap.humidity    { background: #e0eaff; }
-.sensor-chart-wrap.light       { background: #f5f5cc; }
+
+.sensor-chart-wrap.temperature {
+  background: #fde8e8;
+}
+
+.sensor-chart-wrap.humidity {
+  background: #e0eaff;
+}
+
+.sensor-chart-wrap.light {
+  background: #f5f5cc;
+}
 
 .chart-label {
   font-size: 12px;
@@ -165,6 +185,25 @@
   flex-shrink: 0;
   mix-blend-mode: multiply;
   filter: brightness(1.1) contrast(1.1);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.device-card.waiting {
+  animation: pulse_waiting 1s infinite alternate;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}
+
+@keyframes pulse_waiting {
+  from {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .device-info {
@@ -186,7 +225,11 @@
   flex-shrink: 0;
 }
 
-.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
 .toggle-slider {
   position: absolute;
@@ -207,32 +250,47 @@
   background: #fff;
   border-radius: 50%;
   transition: transform 0.25s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-.toggle input:checked + .toggle-slider { background: #22c55e; }
-.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+.toggle input:checked+.toggle-slider {
+  background: #22c55e;
+}
+
+.toggle input:checked+.toggle-slider::before {
+  transform: translateX(18px);
+}
 
 /* LOADING / WAITING STATE */
 .toggle.loading .toggle-slider {
-  background: #f59e0b !important; /* MÀU VÀNG CẢNH BÁO/ĐỢI */
+  background: #f59e0b !important;
+  /* MÀU VÀNG CẢNH BÁO/ĐỢI */
   animation: bg-pulse 1.2s infinite ease-in-out;
   cursor: wait;
 }
 
-.toggle.loading input:checked + .toggle-slider {
+.toggle.loading input:checked+.toggle-slider {
   background: #f59e0b !important;
 }
 
 @keyframes bg-pulse {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.6; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .device-card.loading {
   opacity: 0.8;
-  pointer-events: none; /* TRÁNH CLICK TRÙNG LẶP */
+  pointer-events: none;
+  /* TRÁNH CLICK TRÙNG LẶP */
 }
 
 /* ===== ADD BUTTON ===== */
@@ -252,4 +310,7 @@
   align-self: center;
   transition: background 0.2s;
 }
-.add-btn:hover { background: #5db5d5; }
+
+.add-btn:hover {
+  background: #5db5d5;
+}
