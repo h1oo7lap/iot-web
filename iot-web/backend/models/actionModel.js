@@ -11,7 +11,6 @@ const getActions = async ({ device_id, action, status, date_from, date_to, searc
     if (date_from) { conditions.push('timestamp >= ?'); values.push(date_from) }
     if (date_to)   { conditions.push('timestamp <= ?'); values.push(date_to) }
 
-    // Xử lý tìm kiếm toàn cục nhiều trường (ID, Device, Action, Status, Time)
     if (search) {
         conditions.push(`(
             id LIKE ? OR
@@ -31,19 +30,52 @@ const getActions = async ({ device_id, action, status, date_from, date_to, searc
         `SELECT COUNT(*) AS total FROM action_history ${where}`, values
     )
     const [rows] = await pool.query(
-        `SELECT id AS display_id, device_id, action, status, state, timestamp
+        `SELECT id AS display_id, request_id, device_id, action, status, state, timestamp
          FROM action_history ${where} ORDER BY id DESC LIMIT ? OFFSET ?`,
         [...values, limit, offset]
     )
     return { total, rows }
 }
 
-// Insert 1 action (dùng trong MQTT handler)
-const insertAction = async ({ device_id, action, status, state }) => {
+// Tạo bản ghi với status = "waiting" — gọi trước khi publish MQTT
+const createAction = async ({ request_id, device_id, action, desired_state }) => {
     await pool.query(
-        `INSERT INTO action_history (device_id, action, status, state) VALUES (?, ?, ?, ?)`,
-        [device_id, action, status || 'unknown', state || 'unknown']
+        `INSERT INTO action_history (request_id, device_id, action, status, state)
+         VALUES (?, ?, ?, 'waiting', ?)`,
+        [request_id, device_id, action, desired_state]
     )
 }
 
-export default { getActions, insertAction }
+// Resolve action sau khi nhận trạng thái thực tế từ ESP (qua esp/state)
+// So sánh actual_state vs desired_state → "success" hoặc "fail"
+const resolveAction = async ({ request_id, actual_state, desired_state }) => {
+    const status = actual_state === desired_state ? 'success' : 'fail'
+    await pool.query(
+        `UPDATE action_history SET status = ?, state = ? WHERE request_id = ?`,
+        [status, actual_state, request_id]
+    )
+    return status
+}
+
+// Lấy desired_state từ action_history theo request_id (dùng trong stateHandler)
+const getDesiredState = async (request_id) => {
+    const [[row]] = await pool.query(
+        `SELECT state FROM action_history WHERE request_id = ? LIMIT 1`,
+        [request_id]
+    )
+    return row ? row.state : null
+}
+
+// Đánh "fail" (timeout) nếu action vẫn đang "waiting" sau N giây
+// Dùng WHERE status = 'waiting' để không ghi đè nếu ESP phản hồi muộn nhưng vẫn kịp
+const timeoutAction = async (request_id) => {
+    const [result] = await pool.query(
+        `UPDATE action_history SET status = 'fail', state = 'timeout'
+         WHERE request_id = ? AND status = 'waiting'`,
+        [request_id]
+    )
+    return result.affectedRows > 0 // true nếu đã timeout, false nếu đã được resolve rồi
+}
+
+export default { getActions, createAction, resolveAction, getDesiredState, timeoutAction }
+

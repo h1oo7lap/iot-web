@@ -15,11 +15,13 @@ const LABELS = {
     light:       'Light Level  lx',
 }
 
-// Format timestamp → "HH:MM"
+// Format timestamp → "YYYY-MM-DD HH:mm:ss"
 const formatTime = (ts) => {
     if (!ts) return ''
     const d = new Date(ts)
-    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+    return `${date} ${time}`
 }
 
 export default function SensorChart({ data = [], type = 'temperature' }) {
@@ -40,7 +42,12 @@ export default function SensorChart({ data = [], type = 'temperature' }) {
                         interval="preserveStartEnd"
                         tickLine={false}
                     />
-                    <YAxis tick={{ fontSize: 9, fill: '#666' }} tickLine={false} axisLine={false} />
+                    <YAxis 
+                        domain={[0, 'auto']} 
+                        tick={{ fontSize: 9, fill: '#666' }} 
+                        tickLine={false} 
+                        axisLine={false} 
+                    />
                     <Tooltip
                         contentStyle={{ fontSize: 12, borderRadius: 8, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
                         formatter={(v) => [v, LABELS[type]]}

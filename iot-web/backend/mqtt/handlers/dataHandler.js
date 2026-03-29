@@ -42,12 +42,14 @@ const handleData = async (payload, io) => {
             temperature = parseFloat(sensor.temperature)
         }
         if (sensor.humidity !== undefined) {
-            rawRows.push([sensor_id, 'humidity', parseFloat(sensor.humidity), group_id, device_id])
-            humidity = parseFloat(sensor.humidity)
+            const val = Math.max(0, parseFloat(sensor.humidity))
+            rawRows.push([sensor_id, 'humidity', val, group_id, device_id])
+            humidity = val
         }
         if (sensor.light !== undefined) {
-            rawRows.push([sensor_id, 'light', parseInt(sensor.light, 10), group_id, device_id])
-            light = parseInt(sensor.light, 10)
+            const val = Math.max(0, parseInt(sensor.light, 10))
+            rawRows.push([sensor_id, 'light', val, group_id, device_id])
+            light = val
         }
         // Hỗ trợ format value_type/value (mở rộng sau)
         if (sensor.value_type !== undefined && sensor.value !== undefined) {

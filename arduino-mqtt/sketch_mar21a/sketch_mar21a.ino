@@ -1,31 +1,31 @@
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#include "secret.h"
 #include <ArduinoJson.h>
 #include <DHT.h>
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
 #include <time.h>
-#include "secret.h"
 
-// CONFIG 
+// CONFIG
 #define DHTPIN 2
 #define DHTTYPE DHT11
 #define LIGHT_PIN A0
 
-// WIFI 
-const char* ssid     = WIFI_SSID;
-const char* password = WIFI_PASSWORD;
-const char* mqtt_server = MQTT_SERVER;
+// WIFI
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
+const char *mqtt_server = MQTT_SERVER;
 // 4G: đổi MQTT_SERVER trong secret.h
 
-// MQTT 
-const int mqtt_port   = MQTT_PORT;
-const char* mqtt_user = MQTT_USER;
-const char* mqtt_pass = MQTT_PASS;
+// MQTT
+const int mqtt_port = MQTT_PORT;
+const char *mqtt_user = MQTT_USER;
+const char *mqtt_pass = MQTT_PASS;
 
-// TOPIC 
-const char* topic_data = "esp/data";
-const char* topic_control = "esp/control";
-const char* topic_action = "esp/action";
-const char* topic_state = "esp/state";
+// TOPIC
+const char *topic_data = "esp/data";
+const char *topic_control = "esp/control";
+const char *topic_state = "esp/state";
+// topic_action đã bị xoá — ESP không tự quyết định success/fail
 
 // OBJECT
 WiFiClient espClient;
@@ -33,30 +33,27 @@ PubSubClient client(espClient);
 DHT dht(DHTPIN, DHTTYPE);
 
 // TIME
-const char* ntpServer = "pool.ntp.org";
+const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 7 * 3600;
 
 // TIMER
 unsigned long lastSend = 0;
 const unsigned long interval = 2000;
 
-// DEVICE STRUCT 
+// DEVICE STRUCT
 struct Device {
-  const char* id;
+  const char *id;
   int pin;
   bool state;
 };
 
 Device devices[] = {
-  { "light_1", 5, false },
-  { "fan_1", 4, false },
-  { "ac_1", 13, false }
-};
+    {"light_1", 5, false}, {"fan_1", 4, false}, {"ac_1", 13, false}};
 
 const int deviceCount = sizeof(devices) / sizeof(devices[0]);
 
 // HELPER
-int getDeviceIndex(const char* device_id) {
+int getDeviceIndex(const char *device_id) {
   for (int i = 0; i < deviceCount; i++) {
     if (strcmp(device_id, devices[i].id) == 0) {
       return i;
@@ -126,7 +123,7 @@ unsigned long getTimeStamp() {
   return (unsigned long)now;
 }
 
-// SEND SENSOR 
+// SEND SENSOR
 void sendSensorData() {
   float temp = dht.readTemperature();
   float hum = dht.readHumidity();
@@ -143,6 +140,8 @@ void sendSensorData() {
   }
 
   int light = 1023 - analogRead(LIGHT_PIN);
+  if (light < 0)
+    light = 0; // Bảo vệ: không cho phép giá trị âm nếu cảm biến nhiễu
 
   Serial.print("Temp: ");
   Serial.print(temp);
@@ -173,65 +172,54 @@ void sendSensorData() {
   client.publish(topic_data, buffer);
 }
 
-// SEND ACTION
-void sendAction(const char* device, const char* action, const char* status, const char* state) {
-  StaticJsonDocument<256> doc;
-
-  doc["device_id"] = device;
-  doc["action"] = action;
-  doc["status"] = status;
-  doc["state"] = state;
-
-  char buffer[256];
-  serializeJson(doc, buffer);
-
-  client.publish(topic_action, buffer);
-}
-
 // CONTROL
-void controlDevice(const char* device, const char* action) {
+// Thực thi lệnh và publish trạng thái THỰC TẾ phần cứng lên esp/state
+void controlDevice(const char *request_id, const char *device,
+                   const char *action) {
 
   int index = getDeviceIndex(device);
-
-  if (index == -1) {
-    sendAction(device, action, "fail", "unknown");
-    return;
-  }
 
   Serial.print("Control: ");
   Serial.print(device);
   Serial.print(" -> ");
   Serial.println(action);
 
-  if (strcmp(action, "turn_on") == 0) {
-    digitalWrite(devices[index].pin, HIGH);
-    devices[index].state = true;
-
-    sendAction(device, action, "success", "on");
-
-  } else if (strcmp(action, "turn_off") == 0) {
-    digitalWrite(devices[index].pin, LOW);
-    devices[index].state = false;
-
-    sendAction(device, action, "success", "off");
-
-  } else {
-    sendAction(device, action, "fail", "unknown");
+  if (index == -1) {
+    Serial.println("[WARN] Unknown device, skipping");
     return;
   }
 
-  StaticJsonDocument<128> doc;
-  doc["device_id"] = device;
-  doc["state"] = devices[index].state ? "on" : "off";
+  // Thực thi lệnh
+  if (strcmp(action, "turn_on") == 0) {
+    digitalWrite(devices[index].pin, HIGH);
+    devices[index].state = true;
+  } else if (strcmp(action, "turn_off") == 0) {
+    digitalWrite(devices[index].pin, LOW);
+    devices[index].state = false;
+  } else {
+    Serial.println("[WARN] Unknown action, skipping");
+    return;
+  }
 
-  char buffer[128];
+  // Đọc lại trạng thái phần cứng thực tế
+  bool actualState = (digitalRead(devices[index].pin) == HIGH);
+
+  // Publish trạng thái THỰC TẾ lên esp/state kèm request_id để backend xác nhận
+  StaticJsonDocument<256> doc;
+  doc["request_id"] = request_id;
+  doc["device_id"] = device;
+  doc["state"] = actualState ? "on" : "off";
+
+  char buffer[256];
   serializeJson(doc, buffer);
 
   client.publish(topic_state, buffer, true);
+  Serial.print("[State] Published: ");
+  Serial.println(buffer);
 }
 
-// CALLBACK 
-void callback(char* topic, byte* payload, unsigned int length) {
+// CALLBACK
+void callback(char *topic, byte *payload, unsigned int length) {
 
   char msg[256];
   memcpy(msg, payload, length);
@@ -242,17 +230,25 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   StaticJsonDocument<256> doc;
 
-  if (deserializeJson(doc, msg)) return;
+  if (deserializeJson(doc, msg)) {
+    Serial.println("[ERROR] JSON parse failed");
+    return;
+  }
 
-  const char* device = doc["device_id"];
-  const char* action = doc["action"];
+  const char *request_id = doc["request_id"] | "";
+  const char *device = doc["device_id"];
+  const char *action = doc["action"];
 
-  sendAction(device, action, "waiting", "unknown");
+  if (!device || !action) {
+    Serial.println("[WARN] Missing device_id or action");
+    return;
+  }
 
-  controlDevice(device, action);
+  // Thực thi và báo trạng thái thực tế — không gửi waiting/success/fail
+  controlDevice(request_id, device, action);
 }
 
-// SETUP 
+// SETUP
 void setup() {
   Serial.begin(115200);
   Serial.println("ESP starting...");
@@ -289,7 +285,7 @@ void setup() {
   client.setCallback(callback);
 }
 
-// LOOP 
+// LOOP
 void loop() {
 
   if (WiFi.status() != WL_CONNECTED) {

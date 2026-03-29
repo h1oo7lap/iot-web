@@ -1,5 +1,9 @@
 import deviceModel from '../models/deviceModel.js'
+import actionModel from '../models/actionModel.js'
 import { publish, getClient, TOPICS } from '../mqtt/client.js'
+import { randomUUID } from 'crypto'
+import { io } from '../server.js'
+
 
 const getDevices = async (req, res) => {
     try {
@@ -25,7 +29,7 @@ const getDeviceState = async (req, res) => {
 const controlDevice = async (req, res) => {
     try {
         const { device_id } = req.params
-        const { action }    = req.body
+        const { action } = req.body
 
         if (!action || !['turn_on', 'turn_off'].includes(action)) {
             return res.json({ success: false, message: 'action must be "turn_on" or "turn_off"' })
@@ -39,12 +43,31 @@ const controlDevice = async (req, res) => {
             return res.json({ success: false, message: 'MQTT broker is not connected' })
         }
 
-        publish(TOPICS.CONTROL, { device_id, action })
+        // Sinh request_id duy nhất cho mỗi lệnh
+        const request_id = randomUUID()
+        const desired_state = action === 'turn_on' ? 'on' : 'off'
+        const TIMEOUT_MS = 10_000 // 10 giây: nếu ESP không phản hồi → fail
+
+        // Lưu action với status="waiting" trước khi gửi lệnh
+        await actionModel.createAction({ request_id, device_id, action, desired_state })
+
+        // Gửi lệnh MQTT kèm request_id để ESP phản hồi đúng bản ghi
+        publish(TOPICS.CONTROL, { request_id, device_id, action })
+
+        console.log(`[Control] request_id=${request_id} device=${device_id} action=${action}`)
+
+        // Timeout: nếu ESP không phản hồi trong TIMEOUT_MS → tự mark fail
+        setTimeout(async () => {
+            const timedOut = await actionModel.timeoutAction(request_id)
+            if (timedOut) {
+                console.log(`[Control] TIMEOUT request_id=${request_id} → fail`)
+            }
+        }, TIMEOUT_MS)
 
         res.json({
             success: true,
-            message: `Command "${action}" sent to "${device_id}"`,
-            data: { device_id, action },
+            message: `Command "${action}" sent — waiting for device confirmation`,
+            data: { request_id, device_id, action },
         })
     } catch (error) {
         console.log(error)

@@ -57,11 +57,9 @@ export default function App() {
     }, [])
 
     const handleToggle = (device_id, action) => {
-        setDevices(prev => prev.map(d =>
-            d.device_id === device_id
-                ? { ...d, state: action === 'turn_on' ? 'on' : 'off' }
-                : d
-        ))
+        // Không cập nhật local state ở đây nữa (optimistic UI)
+        // Để onDeviceState (socket) tự cập nhật khi nhận được esp/state phản hồi thực tế từ ESP
+        console.log(`[Control] Command ${action} sent for ${device_id}, waiting for hardware confirm...`)
     }
 
     const temp  = getLatest(sensorData, 'temperature')

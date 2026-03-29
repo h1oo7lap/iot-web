@@ -3,13 +3,13 @@ import { BsSearch } from 'react-icons/bs'
 import './DataSensor.css'
 import { getSensorDataPaged } from '../services/api.js'
 
-// Format timestamp → "HH:MM:SS DD/MM/YY"
+// Format timestamp → "YYYY-MM-DD HH:mm:ss"
 const formatTime = (ts) => {
     if (!ts) return '--'
     const d = new Date(ts)
-    const hms = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
-    const date = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`
-    return `${hms} ${date}`
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+    return `${date} ${time}`
 }
 
 const LIMITS = [7, 10, 20, 50]

@@ -8,8 +8,8 @@ import { handleState }  from './handlers/stateHandler.js'
 export const TOPICS = {
     DATA:    'esp/data',
     CONTROL: 'esp/control',
-    ACTION:  'esp/action',
     STATE:   'esp/state',
+    // ACTION: 'esp/action' — đã bỏ, ESP không còn publish topic này
 }
 
 let mqttClient = null
@@ -29,9 +29,9 @@ export const connectMQTT = (io) => {
 
     mqttClient.on('connect', () => {
         console.log('MQTT Connected')
-        mqttClient.subscribe([TOPICS.DATA, TOPICS.ACTION, TOPICS.STATE], { qos: 1 }, (err) => {
+        mqttClient.subscribe([TOPICS.DATA, TOPICS.STATE], { qos: 1 }, (err) => {
             if (err) return console.log('[MQTT] Subscribe error:', err.message)
-            console.log(`MQTT Subscribed: ${TOPICS.DATA}, ${TOPICS.ACTION}, ${TOPICS.STATE}`)
+            console.log(`MQTT Subscribed: ${TOPICS.DATA}, ${TOPICS.STATE}`)
         })
     })
 
@@ -39,9 +39,8 @@ export const connectMQTT = (io) => {
         const message = payload.toString()
         console.log(`[MQTT] [${topic}]`, message)
 
-        if (topic === TOPICS.DATA)   await handleData(message, io)
-        if (topic === TOPICS.ACTION) await handleAction(message, io)
-        if (topic === TOPICS.STATE)  await handleState(message, io)
+        if (topic === TOPICS.DATA)  await handleData(message, io)
+        if (topic === TOPICS.STATE) await handleState(message, io)
     })
 
     mqttClient.on('reconnect', () => console.log('MQTT Reconnecting...'))

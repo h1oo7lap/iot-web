@@ -83,18 +83,29 @@ export const connectDB = async () => {
 
         await conn.query(`
             CREATE TABLE IF NOT EXISTS action_history (
-                id        BIGINT      AUTO_INCREMENT PRIMARY KEY,
-                device_id VARCHAR(50) NOT NULL,
-                action    VARCHAR(50) NOT NULL,
-                status    VARCHAR(20) NOT NULL,
-                state     VARCHAR(20) NOT NULL,
-                timestamp DATETIME    DEFAULT CURRENT_TIMESTAMP,
+                id         BIGINT       AUTO_INCREMENT PRIMARY KEY,
+                request_id VARCHAR(36)  UNIQUE,
+                device_id  VARCHAR(50)  NOT NULL,
+                action     VARCHAR(50)  NOT NULL,
+                status     VARCHAR(20)  NOT NULL,
+                state      VARCHAR(20)  NOT NULL,
+                timestamp  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_ah_request   (request_id),
                 INDEX idx_ah_device    (device_id),
                 INDEX idx_ah_action    (action),
                 INDEX idx_ah_status    (status),
                 INDEX idx_ah_timestamp (timestamp)
             )
         `)
+
+        // Migration: thêm cột request_id nếu bảng action_history đã tồn tại từ trước
+        try {
+            await conn.query(`ALTER TABLE action_history ADD COLUMN request_id VARCHAR(36) UNIQUE FIRST`)
+            await conn.query(`ALTER TABLE action_history ADD INDEX idx_ah_request (request_id)`)
+            console.log('[DB] Migration: đã thêm cột request_id vào action_history')
+        } catch {
+            // Bỏ qua nếu cột đã tồn tại (Duplicate column error)
+        }
 
         await conn.query(`
             CREATE TABLE IF NOT EXISTS device_state (
