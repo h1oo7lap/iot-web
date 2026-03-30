@@ -8,7 +8,7 @@ export const getSensorLatest = async (limit = 20) => {
 
 export const getSensorDataPaged = async ({ page = 1, limit = 7, search = '', filter = '', sensor_id = 'all' } = {}) => {
     const params = new URLSearchParams({ page, limit })
-    
+
     if (filter && filter !== 'all') {
         params.append('value_type', filter)
     }
@@ -21,20 +21,26 @@ export const getSensorDataPaged = async ({ page = 1, limit = 7, search = '', fil
         params.append('search', search)
     }
 
-    const res  = await fetch(`${BASE_URL}/sensor-data?${params}`)
+    const res = await fetch(`${BASE_URL}/sensor-data?${params}`)
     const json = await res.json()
     return json
 }
 
-export const getActionHistoryPaged = async ({ page = 1, limit = 7, search = '', filter = '' } = {}) => {
+export const getActionHistoryPaged = async ({ page = 1, limit = 7, search = '', filter = '', action = 'all', status = 'all' } = {}) => {
     const params = new URLSearchParams({ page, limit })
     if (search) {
         params.append('search', search)
     }
     if (filter && filter !== 'all') {
-        params.append('device_id', filter) // Ánh xạ filter của dropdown sang device_id
+        params.append('device_id', filter)
     }
-    const res  = await fetch(`${BASE_URL}/actions?${params}`)
+    if (action && action !== 'all') {
+        params.append('action', action)
+    }
+    if (status && status !== 'all') {
+        params.append('status', status)
+    }
+    const res = await fetch(`${BASE_URL}/actions?${params}`)
     const json = await res.json()
     return json
 }

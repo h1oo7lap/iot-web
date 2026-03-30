@@ -9,15 +9,38 @@ const getSensorData = async ({ device_id, date_from, date_to, search, limit, off
     if (date_to) { conditions.push('timestamp <= ?'); values.push(date_to) }
 
     if (search) {
-        conditions.push(`(
-            id LIKE ? OR
-            temperature LIKE ? OR
-            humidity LIKE ? OR
-            light LIKE ? OR
-            DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%s') LIKE ?
-        )`)
-        const pattern = `%${search}%`
-        values.push(pattern, pattern, pattern, pattern, pattern)
+        const lowerSearch = search.toLowerCase().trim()
+        
+        // Nếu chuỗi có chứa ký tự nhiệt độ
+        if (lowerSearch.includes('°c') || lowerSearch.endsWith('c')) {
+            const num = lowerSearch.replace(/[^\d.]/g, '') // Lọc bỏ chữ, chỉ lấy số (vd: '27.8°C' -> '27.8')
+            conditions.push('temperature LIKE ?')
+            values.push(`%${num}%`)
+        } 
+        // Nếu chuỗi có chứa ký tự độ ẩm
+        else if (lowerSearch.includes('%')) {
+            const num = lowerSearch.replace(/[^\d.]/g, '')
+            conditions.push('humidity LIKE ?')
+            values.push(`%${num}%`)
+        } 
+        // Nếu chuỗi có chứa ký tự độ sáng
+        else if (lowerSearch.includes('lx')) {
+            const num = lowerSearch.replace(/[^\d.]/g, '')
+            conditions.push('light LIKE ?')
+            values.push(`%${num}%`)
+        } 
+        // Nếu chỉ nhập số hoặc chuỗi thường (tìm kiếm chung)
+        else {
+            conditions.push(`(
+                id LIKE ? OR
+                temperature LIKE ? OR
+                humidity LIKE ? OR
+                light LIKE ? OR
+                DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%s') LIKE ?
+            )`)
+            const pattern = `%${search}%`
+            values.push(pattern, pattern, pattern, pattern, pattern)
+        }
     }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''

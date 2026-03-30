@@ -28,6 +28,8 @@ export default function ActionHistory() {
     const [searchInput, setSearchInput] = useState('')
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState('all')
+    const [actionFilter, setActionFilter] = useState('all') // filter theo hành động
+    const [statusFilter, setStatusFilter] = useState('all') // filter theo trạng thái
     const [sortKey, setSortKey] = useState('display_id')
     const [sortDir, setSortDir] = useState('desc')
     const [loading, setLoading] = useState(false)
@@ -35,7 +37,14 @@ export default function ActionHistory() {
     const fetchData = async () => {
         setLoading(true)
         try {
-            const res = await getActionHistoryPaged({ page, limit, search, filter })
+            const res = await getActionHistoryPaged({
+                page,
+                limit,
+                search,
+                filter,
+                action: actionFilter,
+                status: statusFilter
+            })
             setRows(res.data || [])
             setTotal(res.pagination?.total || 0)
         } catch (e) {
@@ -45,7 +54,7 @@ export default function ActionHistory() {
         }
     }
 
-    useEffect(() => { fetchData() }, [page, limit, search, filter])
+    useEffect(() => { fetchData() }, [page, limit, search, filter, actionFilter, statusFilter])
 
     useEffect(() => {
         const onRefresh = () => fetchData()
@@ -102,6 +111,27 @@ export default function ActionHistory() {
                         { value: 'light_1', label: 'Light' },
                         { value: 'fan_1', label: 'Fan' },
                         { value: 'ac_1', label: 'Air Condition' }
+                    ]
+                },
+                {
+                    value: actionFilter,
+                    onChange: v => { setActionFilter(v); setPage(1) },
+                    title: "Action Filter",
+                    options: [
+                        { value: 'all', label: 'All Actions' },
+                        { value: 'turn_on', label: 'Turn on' },
+                        { value: 'turn_off', label: 'Turn off' }
+                    ]
+                },
+                {
+                    value: statusFilter,
+                    onChange: v => { setStatusFilter(v); setPage(1) },
+                    title: "Status Filter",
+                    options: [
+                        { value: 'all', label: 'All Statuses' },
+                        { value: 'success', label: 'Success' },
+                        { value: 'fail', label: 'Fail' },
+                        { value: 'waiting', label: 'Waiting' }
                     ]
                 }
             ]}
