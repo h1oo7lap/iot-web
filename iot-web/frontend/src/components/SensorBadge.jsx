@@ -1,6 +1,7 @@
 import tempGif from '../assets/temperature.gif'
 import humGif from '../assets/humidity.gif'
 import sunGif from '../assets/sun.gif'
+import soilGif from '../assets/hydrated-skin.gif'
 import './SensorBadge.css'
 
 const getBadgeStyle = (type, value) => {
@@ -37,6 +38,16 @@ const getBadgeStyle = (type, value) => {
         g2 = `hsl(${hue}, ${sat}%, ${lightRight}%)`
         glow = `hsla(${hue}, ${sat}%, 50%, ${0.1 + (p * 0.004)})`
         textColor = lightLeft < 60 ? '#ffffff' : '#4a3f00'
+    } else if (type === 'soil_moisture') {
+        const p = Math.min(100, val)
+        const hue = 25
+        const sat = 50
+        const lightLeft = 60 - (p * 0.2)
+        const lightRight = 85
+        g1 = `hsl(${hue}, ${sat}%, ${lightLeft}%)`
+        g2 = `hsl(${hue}, ${sat}%, ${lightRight}%)`
+        glow = `hsla(${hue}, ${sat}%, 30%, 0.3)`
+        textColor = '#3e2723'
     }
 
     return {
@@ -47,8 +58,8 @@ const getBadgeStyle = (type, value) => {
 }
 
 export default function SensorBadge({ type, value }) {
-    const icon = type === 'temperature' ? tempGif : type === 'humidity' ? humGif : sunGif
-    const unit = type === 'temperature' ? '°C' : type === 'humidity' ? '%' : ' lx'
+    const icon = type === 'temperature' ? tempGif : (type === 'humidity') ? humGif : (type === 'soil_moisture') ? soilGif : sunGif
+    const unit = (type === 'humidity' || type === 'soil_moisture') ? '%' : type === 'temperature' ? '°C' : ' lx'
     const displayValue = value !== '--' ? `${value}${unit}` : '--'
 
     return (

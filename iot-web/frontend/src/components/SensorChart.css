@@ -18,6 +18,10 @@
   background: #f5f5cc;
 }
 
+.sensor-chart-wrap.soil_moisture {
+  background: #f5e6cc;
+}
+
 .chart-label {
   font-size: 12px;
   font-weight: 600;

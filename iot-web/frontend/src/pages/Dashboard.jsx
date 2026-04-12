@@ -69,6 +69,7 @@ export default function Dashboard({ sensorData, loading: sensorLoading }) {
     const temp = getLatest(sensorData, 'temperature')
     const hum = getLatest(sensorData, 'humidity')
     const light = getLatest(sensorData, 'light')
+    const soil = getLatest(sensorData, 'soil_moisture')
 
     return (
         <div className="dashboard-layout">
@@ -91,6 +92,10 @@ export default function Dashboard({ sensorData, loading: sensorLoading }) {
                             <div className="sensor-row">
                                 <SensorBadge type="light" value={light} />
                                 <SensorChart data={sensorData} type="light" />
+                            </div>
+                            <div className="sensor-row">
+                                <SensorBadge type="soil_moisture" value={soil} />
+                                <SensorChart data={sensorData} type="soil_moisture" />
                             </div>
                         </>
                     )}

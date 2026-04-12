@@ -5,6 +5,8 @@ import lightBulbGif from '../assets/light-bulb.gif'
 import fanPng from '../assets/fan.png'
 import acPng from '../assets/air-conditioning.png'
 import lightBulbPng from '../assets/light-bulb.png'
+import alarmGif from '../assets/alarm.gif'
+import alarmPng from '../assets/alarm.png'
 import { useState } from 'react'
 import './DeviceCard.css'
 
@@ -12,23 +14,19 @@ const DEVICE_ICONS_GIF = {
     fan: fanGif,
     ac: acGif,
     light: lightBulbGif,
+    alarm: alarmGif,
 }
 
 const DEVICE_ICONS_PNG = {
     fan: fanPng,
     ac: acPng,
     light: lightBulbPng,
-}
-
-const DEVICE_LABELS = {
-    light_1: 'Light Bedroom',
-    fan_1: 'Fan',
-    ac_1: 'Air Conditin',
+    alarm: alarmPng,
 }
 
 export default function DeviceCard({ device, onToggle }) {
     const [isWaiting, setIsWaiting] = useState(false)
-    const label = DEVICE_LABELS[device.device_id] ?? device.name
+    const label = device.name || device.device_id
     const isOn = device.state === 'on'
 
     const handleToggle = async () => {

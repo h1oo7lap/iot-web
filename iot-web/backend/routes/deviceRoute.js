@@ -1,11 +1,10 @@
 import express from 'express'
-import { getDevices, getDeviceState, controlDevice, getSensors } from '../controllers/deviceController.js'
+import { getDevices, controlDevice, getActionHistory } from '../controllers/deviceController.js'
 
 const deviceRouter = express.Router()
 
 deviceRouter.get('/', getDevices)
-deviceRouter.get('/sensors/list', getSensors)
-deviceRouter.get('/:device_id/state', getDeviceState)
 deviceRouter.post('/:device_id/control', controlDevice)
+deviceRouter.get('/actions', getActionHistory)
 
 export default deviceRouter

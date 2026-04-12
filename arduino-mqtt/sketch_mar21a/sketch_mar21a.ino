@@ -5,7 +5,6 @@
 #include <PubSubClient.h>
 #include <time.h>
 
-// CONFIG
 #define DHTPIN 2
 #define DHTTYPE DHT11
 #define LIGHT_PIN A0
@@ -14,7 +13,6 @@
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
 const char *mqtt_server = MQTT_SERVER;
-// 4G: đổi MQTT_SERVER trong secret.h
 
 // MQTT
 const int mqtt_port = MQTT_PORT;
@@ -25,12 +23,14 @@ const char *mqtt_pass = MQTT_PASS;
 const char *topic_data = "esp/data";
 const char *topic_control = "esp/control";
 const char *topic_state = "esp/state";
-// topic_action đã bị xoá — ESP không tự quyết định success/fail
 
 // OBJECT
 WiFiClient espClient;
 PubSubClient client(espClient);
 DHT dht(DHTPIN, DHTTYPE);
+
+int soilCounter = 0;
+float soilM = 0;
 
 // TIME
 const char *ntpServer = "pool.ntp.org";
@@ -41,21 +41,24 @@ unsigned long lastSend = 0;
 const unsigned long interval = 2000;
 
 // DEVICE STRUCT
-struct Device {
+struct Device
+{
   const char *id;
   int pin;
   bool state;
 };
 
 Device devices[] = {
-    {"light_1", 5, false}, {"fan_1", 4, false}, {"ac_1", 13, false}};
+    {"light_1", 5, false}, {"fan_1", 4, false}, {"ac_1", 13, false}, {"alarm_1", 12, false}};
 
 const int deviceCount = sizeof(devices) / sizeof(devices[0]);
 
-// HELPER
-int getDeviceIndex(const char *device_id) {
-  for (int i = 0; i < deviceCount; i++) {
-    if (strcmp(device_id, devices[i].id) == 0) {
+int getDeviceIndex(const char *device_id)
+{
+  for (int i = 0; i < deviceCount; i++)
+  {
+    if (strcmp(device_id, devices[i].id) == 0)
+    {
       return i;
     }
   }
@@ -63,12 +66,14 @@ int getDeviceIndex(const char *device_id) {
 }
 
 // WIFI
-void connectWiFi() {
+void connectWiFi()
+{
   Serial.print("Connecting WiFi");
 
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
   }
@@ -79,20 +84,25 @@ void connectWiFi() {
 }
 
 // MQTT
-void reconnectMQTT() {
-  while (!client.connected()) {
+void reconnectMQTT()
+{
+  while (!client.connected())
+  {
 
     Serial.print("Connecting MQTT...");
 
-    if (WiFi.status() != WL_CONNECTED) {
+    if (WiFi.status() != WL_CONNECTED)
+    {
       connectWiFi();
     }
 
-    if (client.connect("esp8266_client", mqtt_user, mqtt_pass)) {
+    if (client.connect("esp8266_client", mqtt_user, mqtt_pass))
+    {
       Serial.println("OK");
       client.subscribe(topic_control);
 
-      for (int i = 0; i < deviceCount; i++) {
+      for (int i = 0; i < deviceCount; i++)
+      {
         StaticJsonDocument<128> doc;
         doc["device_id"] = devices[i].id;
         doc["state"] = devices[i].state ? "on" : "off";
@@ -102,8 +112,9 @@ void reconnectMQTT() {
 
         client.publish(topic_state, buffer, true);
       }
-
-    } else {
+    }
+    else
+    {
       Serial.print("Fail, rc=");
       Serial.println(client.state());
       delay(2000);
@@ -112,59 +123,100 @@ void reconnectMQTT() {
 }
 
 // TIME
-unsigned long getTimeStamp() {
-  time_t now;
-  time(&now);
+unsigned long getTimeStamp()
+{
+  time_t now = time(nullptr);
 
-  if (now < 100000) {
-    return millis();
+  if (now < 100000)
+  {
+    return 0;
   }
 
   return (unsigned long)now;
 }
 
-// SEND SENSOR
-void sendSensorData() {
+// DATA
+void sendSensorData()
+{
+
   float temp = dht.readTemperature();
   float hum = dht.readHumidity();
-
-  if (isnan(temp) || isnan(hum)) {
+  if (isnan(temp) || isnan(hum))
+  {
     delay(200);
     temp = dht.readTemperature();
     hum = dht.readHumidity();
   }
-
-  if (isnan(temp) || isnan(hum)) {
+  if (isnan(temp) || isnan(hum))
+  {
     Serial.println("DHT error!");
     return;
   }
 
-  int light = 1023 - analogRead(LIGHT_PIN);
+  float light = 1023 - analogRead(LIGHT_PIN);
   if (light < 0)
-    light = 0; // Bảo vệ: không cho phép giá trị âm nếu cảm biến nhiễu
+    light = 0;
+
+  soilCounter++;
+  if (soilCounter <= 5)
+  {
+    soilM = random(0, 701) / 10.0;
+  }
+  else
+  {
+    soilM = random(700, 1001) / 10.0;
+  }
+  if (soilCounter >= 10)
+  {
+    soilCounter = 0;
+  }
 
   Serial.print("Temp: ");
   Serial.print(temp);
   Serial.print(" | Hum: ");
   Serial.print(hum);
   Serial.print(" | Light: ");
-  Serial.println(light);
+  Serial.print(light);
+  Serial.print(" | Soil Moisture: ");
+  Serial.println(soilM);
 
   StaticJsonDocument<512> doc;
 
-  doc["device_id"] = "esp1";
-  doc["group_id"] = getTimeStamp();
+  // message_id
+  unsigned long ts = getTimeStamp();
+  if (ts == 0)
+  {
+    Serial.println("[WARN] No valid time yet, skip sending");
+    return;
+  }
+
+  doc["message_id"] = ts;
 
   JsonArray sensors = doc.createNestedArray("sensors");
 
-  JsonObject dhtObj = sensors.createNestedObject();
-  dhtObj["sensor_id"] = "dht11_1";
-  dhtObj["temperature"] = temp;
-  dhtObj["humidity"] = hum;
+  // temperature
+  JsonObject t = sensors.createNestedObject();
+  t["sensor_id"] = "dht11_1";
+  t["value_type"] = "temperature";
+  t["value"] = temp;
 
-  JsonObject ldrObj = sensors.createNestedObject();
-  ldrObj["sensor_id"] = "ldr_1";
-  ldrObj["light"] = light;
+  // humidity
+  JsonObject h = sensors.createNestedObject();
+  h["sensor_id"] = "dht11_1";
+  h["value_type"] = "humidity";
+  h["value"] = hum;
+
+  // light
+  JsonObject l = sensors.createNestedObject();
+  l["sensor_id"] = "ldr_1";
+  l["value_type"] = "light";
+  l["value"] = light;
+
+  // soil moisture
+  JsonObject sm = sensors.createNestedObject();
+  sm["sensor_id"] = "sm_1";
+  sm["value_type"] = "soil_moisture";
+  sm["value"] = soilM;
 
   char buffer[512];
   serializeJson(doc, buffer);
@@ -172,10 +224,9 @@ void sendSensorData() {
   client.publish(topic_data, buffer);
 }
 
-// CONTROL
-// Thực thi lệnh và publish trạng thái THỰC TẾ phần cứng lên esp/state
-void controlDevice(const char *request_id, const char *device,
-                   const char *action) {
+// CONTROL + STATE
+void controlDevice(const char *request_id, const char *device, const char *action)
+{
 
   int index = getDeviceIndex(device);
 
@@ -184,27 +235,32 @@ void controlDevice(const char *request_id, const char *device,
   Serial.print(" -> ");
   Serial.println(action);
 
-  if (index == -1) {
+  // control
+  if (index == -1)
+  {
     Serial.println("[WARN] Unknown device, skipping");
     return;
   }
 
-  // Thực thi lệnh
-  if (strcmp(action, "turn_on") == 0) {
+  if (strcmp(action, "turn_on") == 0)
+  {
     digitalWrite(devices[index].pin, HIGH);
     devices[index].state = true;
-  } else if (strcmp(action, "turn_off") == 0) {
+  }
+  else if (strcmp(action, "turn_off") == 0)
+  {
     digitalWrite(devices[index].pin, LOW);
     devices[index].state = false;
-  } else {
+  }
+  else
+  {
     Serial.println("[WARN] Unknown action, skipping");
     return;
   }
 
-  // Đọc lại trạng thái phần cứng thực tế
+  // state
   bool actualState = (digitalRead(devices[index].pin) == HIGH);
 
-  // Publish trạng thái THỰC TẾ lên esp/state kèm request_id để backend xác nhận
   StaticJsonDocument<256> doc;
   doc["request_id"] = request_id;
   doc["device_id"] = device;
@@ -219,7 +275,8 @@ void controlDevice(const char *request_id, const char *device,
 }
 
 // CALLBACK
-void callback(char *topic, byte *payload, unsigned int length) {
+void callback(char *topic, byte *payload, unsigned int length)
+{
 
   char msg[256];
   memcpy(msg, payload, length);
@@ -230,7 +287,8 @@ void callback(char *topic, byte *payload, unsigned int length) {
 
   StaticJsonDocument<256> doc;
 
-  if (deserializeJson(doc, msg)) {
+  if (deserializeJson(doc, msg))
+  {
     Serial.println("[ERROR] JSON parse failed");
     return;
   }
@@ -239,31 +297,30 @@ void callback(char *topic, byte *payload, unsigned int length) {
   const char *device = doc["device_id"];
   const char *action = doc["action"];
 
-  if (!device || !action) {
+  if (!device || !action)
+  {
     Serial.println("[WARN] Missing device_id or action");
     return;
   }
-
-  // Thực thi và báo trạng thái thực tế — không gửi waiting/success/fail
   controlDevice(request_id, device, action);
 }
 
-// SETUP
-void setup() {
+// SETUP + LOOP
+void setup()
+{
   Serial.begin(115200);
   Serial.println("ESP starting...");
 
-  // WiFi
   connectWiFi();
 
-  // NTP
   configTime(gmtOffset_sec, 0, ntpServer);
 
   Serial.print("Syncing time...");
   time_t now = time(nullptr);
 
   int retry = 0;
-  while (now < 100000 && retry < 20) {
+  while (now < 100000 && retry < 20)
+  {
     delay(500);
     Serial.print(".");
     now = time(nullptr);
@@ -272,33 +329,36 @@ void setup() {
 
   Serial.println("\nTime synced!");
 
-  // Device init
-  for (int i = 0; i < deviceCount; i++) {
+  for (int i = 0; i < deviceCount; i++)
+  {
     pinMode(devices[i].pin, OUTPUT);
     digitalWrite(devices[i].pin, LOW);
   }
 
   dht.begin();
 
-  // MQTT
   client.setServer(mqtt_server, mqtt_port);
+  client.setBufferSize(512);
   client.setCallback(callback);
 }
 
-// LOOP
-void loop() {
+void loop()
+{
 
-  if (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED)
+  {
     connectWiFi();
   }
 
-  if (!client.connected()) {
+  if (!client.connected())
+  {
     reconnectMQTT();
   }
 
   client.loop();
 
-  if (millis() - lastSend >= interval) {
+  if (millis() - lastSend >= interval)
+  {
     lastSend = millis();
     sendSensorData();
   }

@@ -31,7 +31,7 @@ export default function App() {
     useEffect(() => { fetchData() }, [fetchData])
 
     useEffect(() => {
-        const onSensorData = (data) => setSensorData(prev => [data, ...prev].slice(0, 20))
+        const onSensorData = (data) => setSensorData(prev => [data, ...prev].slice(0, 10))
         socket.on('sensor:data', onSensorData)
         return () => {
             socket.off('sensor:data', onSensorData)

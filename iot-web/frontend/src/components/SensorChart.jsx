@@ -4,12 +4,14 @@ import './SensorChart.css'
 const COLORS = {
     temperature: '#ef4444',
     humidity: '#3b82f6',
+    soil_moisture: '#795548',
     light: '#a0a000',
 }
 
 const LABELS = {
     temperature: 'Temperature °C',
     humidity: 'Humidity %',
+    soil_moisture: 'Soil Moisture %',
     light: 'Light Level  lx',
 }
 
@@ -23,7 +25,7 @@ const formatTime = (ts) => {
 
 export default function SensorChart({ data = [], type = 'temperature' }) {
     const chartData = [...data].reverse().map(d => ({
-        time: formatTime(d.timestamp),
+        time: formatTime(d.created_at),
         value: d[type] ?? null,
     })).filter(d => d.value !== null)
 

@@ -5,78 +5,63 @@ import { spawn } from 'child_process'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 
-import { connectDB }   from './config/db.js'
+import { connectDB } from './config/db.js'
 import { connectMQTT } from './mqtt/client.js'
-
 import sensorRouter from './routes/sensorRoute.js'
-import actionRouter from './routes/actionRoute.js'
 import deviceRouter from './routes/deviceRoute.js'
 
-// ===== Khởi động Mosquitto broker =====
+// Khởi động Mosquitto broker 
 const startMosquitto = () => {
-    const configPath = process.env.MOSQUITTO_CONF
-        || 'C:\\Users\\h1oo7\\Desktop\\iot-web\\arduino-mqtt\\myconfig.conf'
-
+    const configPath = process.env.MOSQUITTO_CONF || 'C:\\Users\\h1oo7\\Desktop\\iot_v2\\iot-web\\arduino-mqtt\\myconfig.conf'
     const mosquitto = spawn('mosquitto', ['-c', configPath, '-v'], {
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: false,
     })
 
-    mosquitto.stdout.on('data', (data) => {
-        console.log('[Mosquitto]', data.toString().trim())
-    })
-    mosquitto.stderr.on('data', (data) => {
-        console.log('[Mosquitto]', data.toString().trim())
-    })
+    mosquitto.stdout.on('data', (data) => console.log('[Mosquitto]', data.toString().trim()))
+    mosquitto.stderr.on('data', (data) => console.log('[Mosquitto]', data.toString().trim()))
+
     mosquitto.on('error', (err) => {
-        console.log('[Mosquitto] Failed to start:', err.message)
-        console.log('[Mosquitto] Make sure mosquitto is installed and added to PATH')
-    })
-    mosquitto.on('close', (code) => {
-        console.log(`[Mosquitto] Exited with code ${code}`)
+        console.log('[Mosquitto] Failed to start. Make sure it is in PATH.')
     })
 
-    console.log('[Mosquitto] Starting broker...')
+    console.log('[Mosquitto] Broker is starting...')
     return mosquitto
 }
 
-// app config
-const app    = express()
+// App config
+const app = express()
 const server = createServer(app)
-const port   = process.env.PORT || 3000
+const port = process.env.PORT || 4000
 
-// Socket.IO
+// Socket.IO config
 export const io = new Server(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
 })
 
 io.on('connection', (socket) => {
-    console.log('[Socket.IO] Client connected:', socket.id)
-    socket.on('disconnect', () => {
-        console.log('[Socket.IO] Client disconnected:', socket.id)
-    })
+    console.log('[Socket.IO] New client connected:', socket.id)
+    socket.on('disconnect', () => console.log('[Socket.IO] Client disconnected'))
 })
 
-// middleware
+// Middleware
 app.use(express.json())
 app.use(cors())
 
-// db connection
+// Kết nối Database
 connectDB()
 
-// start mosquitto → wait 1.5s → connect mqtt (pass io for realtime emit)
+// Khởi động Mosquitto và Kết nối MQTT 
 startMosquitto()
 setTimeout(() => connectMQTT(io), 1500)
 
-// api endpoints
-app.use('/api/sensor-data', sensorRouter)
-app.use('/api/actions',     actionRouter)
-app.use('/api/devices',     deviceRouter)
+// API Endpoints 
+app.use('/api/sensors', sensorRouter) // Quản lý lịch sử, data raw, data latest
+app.use('/api/devices', deviceRouter) // Quản lý danh sách thiết bị, điều khiển và lịch sử action
 
-app.get('/', (req, res) => res.send('IoT Backend Working'))
+app.get('/', (req, res) => res.send('IoT Backend Ver 2 - Ready'))
 
+// Start Server
 server.listen(port, () => {
-    console.log(`Server starting on http://localhost:${port}`)
+    console.log(`[Server] Running at http://localhost:${port}`)
 })
-
-

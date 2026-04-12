@@ -1,12 +1,12 @@
 const BASE_URL = 'http://localhost:3000/api'
 
-export const getSensorLatest = async (limit = 20) => {
-    const res = await fetch(`${BASE_URL}/sensor-data?limit=${limit}`)
+export const getSensorLatest = async (limit = 10) => {
+    const res = await fetch(`${BASE_URL}/sensors/latest?limit=${limit}`)
     const json = await res.json()
     return json.data || []
 }
 
-export const getSensorDataPaged = async ({ page = 1, limit = 7, search = '', filter = '', sensor_id = 'all' } = {}) => {
+export const getSensorDataPaged = async ({ page = 1, limit = 10, search = '', filter = '', sensor_id = 'all' } = {}) => {
     const params = new URLSearchParams({ page, limit })
 
     if (filter && filter !== 'all') {
@@ -21,13 +21,15 @@ export const getSensorDataPaged = async ({ page = 1, limit = 7, search = '', fil
         params.append('search', search)
     }
 
-    const res = await fetch(`${BASE_URL}/sensor-data?${params}`)
+    const res = await fetch(`${BASE_URL}/sensors?${params}`)
     const json = await res.json()
     return json
 }
 
-export const getActionHistoryPaged = async ({ page = 1, limit = 7, search = '', filter = '', action = 'all', status = 'all' } = {}) => {
+export const getActionHistoryPaged = async ({ page = 1, limit = 10, search = '', filter = '', action = 'all', status = 'all' } = {}) => {
+
     const params = new URLSearchParams({ page, limit })
+
     if (search) {
         params.append('search', search)
     }
@@ -40,7 +42,8 @@ export const getActionHistoryPaged = async ({ page = 1, limit = 7, search = '', 
     if (status && status !== 'all') {
         params.append('status', status)
     }
-    const res = await fetch(`${BASE_URL}/actions?${params}`)
+
+    const res = await fetch(`${BASE_URL}/devices/actions?${params}`)
     const json = await res.json()
     return json
 }
@@ -59,5 +62,3 @@ export const controlDevice = async (device_id, action) => {
     })
     return await res.json()
 }
-
-

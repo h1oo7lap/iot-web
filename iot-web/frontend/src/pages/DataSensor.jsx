@@ -12,19 +12,25 @@ export default function DataSensor() {
     const [rows, setRows] = useState([])
     const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(7)
+    const [limit, setLimit] = useState(10)
     const [searchInput, setSearchInput] = useState('')
     const [search, setSearch] = useState('')
-    const [filter, setFilter] = useState('all')
-    const [sensorFilter, setSensorFilter] = useState('all')
-    const [sortKey, setSortKey] = useState('display_id')
+    const [filterbyValueType, setFilterbyValueType] = useState('all')
+    const [filterbySensor, setFilterbySensor] = useState('all')
+    const [sortKey, setSortKey] = useState('message_id')
     const [sortDir, setSortDir] = useState('desc')
     const [loading, setLoading] = useState(false)
 
     const fetchData = async () => {
         setLoading(true)
         try {
-            const res = await getSensorDataPaged({ page, limit, search, filter, sensor_id: sensorFilter })
+            const res = await getSensorDataPaged({
+                page,
+                limit,
+                search,
+                filter: filterbyValueType,
+                sensor_id: filterbySensor
+            })
             setRows(res.data || [])
             setTotal(res.pagination?.total || 0)
         } catch (e) {
@@ -34,7 +40,7 @@ export default function DataSensor() {
         }
     }
 
-    useEffect(() => { fetchData() }, [page, limit, search, filter, sensorFilter])
+    useEffect(() => { fetchData() }, [page, limit, search, filterbyValueType, filterbySensor])
 
     const sorted = [...rows].sort((a, b) => {
         const va = a[sortKey] ?? -Infinity
@@ -42,21 +48,22 @@ export default function DataSensor() {
         return sortDir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1)
     })
 
-    const isRawData = (sensorFilter !== 'all') || (filter !== 'all')
-    const showValueType = isRawData && filter === 'all'
+    const isRawData = (filterbySensor !== 'all') || (filterbyValueType !== 'all')
+    const showValueType = isRawData && filterbyValueType === 'all'
 
     const columns = !isRawData ? [
-        { key: 'display_id', label: 'ID', sortable: true },
+        { key: 'message_id', label: 'ID', sortable: true },
         { key: 'temperature', label: 'Temp (°C)', sortable: true, render: r => r.temperature !== null ? `${r.temperature}°C` : '--' },
         { key: 'humidity', label: 'Hum (%)', sortable: true, render: r => r.humidity !== null ? `${r.humidity}%` : '--' },
         { key: 'light', label: 'Light (lx)', sortable: true, render: r => r.light !== null ? `${r.light} lx` : '--' },
-        { key: 'timestamp', label: 'Time', sortable: true, render: r => formatTime(r.timestamp) },
+        { key: 'soil_moisture', label: 'Soil Moist (%)', sortable: true, render: r => r.soil_moisture !== null ? `${r.soil_moisture}%` : '--' },
+        { key: 'created_at', label: 'Time', sortable: true, render: r => formatTime(r.created_at) },
     ] : [
-        { key: 'display_id', label: 'ID', sortable: true },
+        { key: 'message_id', label: 'ID', sortable: true },
         { key: 'sensor_id', label: 'Sensor', sortable: true },
         ...(showValueType ? [{ key: 'value_type', label: 'Type', sortable: true }] : []),
         { key: 'value', label: 'Value', sortable: true },
-        { key: 'timestamp', label: 'Time', sortable: true, render: r => formatTime(r.timestamp) },
+        { key: 'created_at', label: 'Time', sortable: true, render: r => formatTime(r.created_at) },
     ]
 
     return (
@@ -79,24 +86,26 @@ export default function DataSensor() {
             }}
             filters={[
                 {
-                    value: sensorFilter,
-                    onChange: v => { setSensorFilter(v); setPage(1) },
+                    value: filterbySensor,
+                    onChange: v => { setFilterbySensor(v); setPage(1) },
                     title: "Sensor Filter",
                     options: [
                         { value: 'all', label: 'All Sensors' },
-                        { value: 'dht11_1', label: 'DHT11' },
-                        { value: 'ldr_1', label: 'Light Sensor' }
+                        { value: 'dht11_1', label: 'dht11' },
+                        { value: 'ldr_1', label: 'ldr' },
+                        { value: 'sm_1', label: 'sm' }
                     ]
                 },
                 {
-                    value: filter,
-                    onChange: v => { setFilter(v); setPage(1) },
+                    value: filterbyValueType,
+                    onChange: v => { setFilterbyValueType(v); setPage(1) },
                     title: "Value Filter",
                     options: [
                         { value: 'all', label: 'All Values' },
                         { value: 'temperature', label: 'Temperature' },
                         { value: 'humidity', label: 'Humidity' },
-                        { value: 'light', label: 'Light' }
+                        { value: 'light', label: 'Light' },
+                        { value: 'soil_moisture', label: 'Soil Moisture' }
                     ]
                 }
             ]}

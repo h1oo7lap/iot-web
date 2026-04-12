@@ -1,12 +1,12 @@
 import { BsSearch } from 'react-icons/bs'
 import './DataTable.css'
 
-const LIMITS = [7, 10, 20, 50]
+const LIMITS = [10, 20, 50]
 
-export default function DataTable({ 
-    title, 
-    columns = [], 
-    rows = [], 
+export default function DataTable({
+    title,
+    columns = [],
+    rows = [],
     loading = false,
     sortKey,
     sortDir,
@@ -81,8 +81,8 @@ export default function DataTable({
                     <thead>
                         <tr>
                             {columns.map(col => (
-                                <th 
-                                    key={col.key} 
+                                <th
+                                    key={col.key}
                                     className={col.sortable ? 'sortable' : ''}
                                     onClick={() => col.sortable && onSort(col.key)}
                                 >
