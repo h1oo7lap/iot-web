@@ -115,17 +115,17 @@ export const connectDB = async () => {
         // Khởi tạo dữ liệu mẫu
         await conn.query(`
             INSERT IGNORE INTO sensors (sensor_id, name, type) VALUES
-                ('dht11_1', 'Cảm biến nhiệt độ & độ ẩm DHT11', 'temperature + humidity'),
-                ('ldr_1', 'Cảm biến ánh sáng LDR', 'light'),
-                ('sm_1', 'Cảm biến độ ẩm đất SM', 'soil_moisture')
+                ('dht11_1', 'DHT11 Temp & Humidity Sensor', 'temperature + humidity'),
+                ('ldr_1', 'LDR Light Sensor', 'light'),
+                ('sm_1', 'SM Soil Moisture Sensor', 'soil_moisture')
         `)
 
         await conn.query(`
             INSERT IGNORE INTO devices (device_id, name, type, pin) VALUES
-                ('light_1', 'Đèn phòng',  'light', 5),
-                ('fan_1',   'Quạt phòng', 'fan',   4),
-                ('ac_1',    'Điều hòa', 'ac',   13),
-                ('alarm_1', 'Đèn cảnh báo', 'alarm', 12)
+                ('light_1', 'Room Light',  'light', 5),
+                ('fan_1',   'Room Fan', 'fan',   4),
+                ('ac_1',    'Air Conditioner', 'ac',   13),
+                ('alarm_1', 'Warning Light', 'alarm', 12)
         `)
 
         await conn.query(`

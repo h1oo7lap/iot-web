@@ -6,11 +6,11 @@ export const getSensorLatest = async (limit = 10) => {
     return json.data || []
 }
 
-export const getSensorDataPaged = async ({ page = 1, limit = 10, search = '', filter = '', sensor_id = 'all' } = {}) => {
+export const getSensorDataPaged = async ({ page = 1, limit = 10, search = '', value_type = 'all', filter = '', sensor_id = 'all' } = {}) => {
     const params = new URLSearchParams({ page, limit })
 
-    if (filter && filter !== 'all') {
-        params.append('value_type', filter)
+    if (value_type && value_type !== 'all') {
+        params.append('value_type', value_type)
     }
 
     if (sensor_id && sensor_id !== 'all') {

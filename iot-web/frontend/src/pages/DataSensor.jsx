@@ -28,7 +28,7 @@ export default function DataSensor() {
                 page,
                 limit,
                 search,
-                filter: filterbyValueType,
+                value_type: filterbyValueType,
                 sensor_id: filterbySensor
             })
             setRows(res.data || [])
@@ -48,8 +48,16 @@ export default function DataSensor() {
         return sortDir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1)
     })
 
-    const isRawData = (filterbySensor !== 'all') || (filterbyValueType !== 'all')
-    const showValueType = isRawData && filterbyValueType === 'all'
+    const isRawData = (filterbySensor !== 'all') || (filterbyValueType !== 'all');
+    const showValueType = isRawData && filterbyValueType === 'all';
+
+    // Định nghĩa bảng tra cứu đơn vị để code sạch sẽ hơn
+    const unitMap = {
+        'temperature': '°C',
+        'humidity': '%',
+        'light': ' lx',
+        'soil_moisture': '%'
+    };
 
     const columns = !isRawData ? [
         { key: 'message_id', label: 'ID', sortable: true },
@@ -62,9 +70,19 @@ export default function DataSensor() {
         { key: 'message_id', label: 'ID', sortable: true },
         { key: 'sensor_id', label: 'Sensor', sortable: true },
         ...(showValueType ? [{ key: 'value_type', label: 'Type', sortable: true }] : []),
-        { key: 'value', label: 'Value', sortable: true },
+        {
+            key: 'value',
+            label: 'Value',
+            sortable: true,
+            render: r => {
+                if (r.value === null || r.value === undefined) return '--';
+                const type = filterbyValueType !== 'all' ? filterbyValueType : r.value_type;
+                const unit = unitMap[type] || '';
+                return `${r.value}${unit}`;
+            }
+        },
         { key: 'created_at', label: 'Time', sortable: true, render: r => formatTime(r.created_at) },
-    ]
+    ];
 
     return (
         <DataTable
@@ -91,9 +109,9 @@ export default function DataSensor() {
                     title: "Sensor Filter",
                     options: [
                         { value: 'all', label: 'All Sensors' },
-                        { value: 'dht11_1', label: 'dht11' },
-                        { value: 'ldr_1', label: 'ldr' },
-                        { value: 'sm_1', label: 'sm' }
+                        { value: 'dht11_1', label: 'DHT11' },
+                        { value: 'ldr_1', label: 'LDR' },
+                        { value: 'sm_1', label: 'SM' }
                     ]
                 },
                 {
