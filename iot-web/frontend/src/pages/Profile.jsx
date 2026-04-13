@@ -109,7 +109,7 @@ export default function Profile() {
                         <div className="info-label">
                             <BsFileEarmarkText /> API DOC
                         </div>
-                        <a href="https://documenter.getpostman.com/view/49368644/2sBXinG9yX" target="_blank" rel="noreferrer" className="info-link">
+                        <a href="https://documenter.getpostman.com/view/49368644/2sBXitDTZX" target="_blank" rel="noreferrer" className="info-link">
                             documenter.getpostman.com/view/iot-web
                         </a>
                     </div>
